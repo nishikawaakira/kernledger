@@ -181,9 +181,9 @@ We do not touch:
 
 ## 8. Known limitations of this MVP
 
-- Single distro adapter (Amazon Linux 2). AL2023 / RHEL / Ubuntu need
-  separate adapters; the plugin interface is in place but no
-  implementations ship yet.
+- Two distro adapters shipped: Amazon Linux 2 and Amazon Linux 2023.
+  RHEL / Rocky / AlmaLinux / Ubuntu / Debian need separate adapters;
+  the plugin interface is in place but no implementations ship yet.
 - No automatic LiME or symbol download. Operators must stage these
   themselves; this is intentional (supply-chain control).
 - No automatic uploader. Transfer of the final tarball off the host is

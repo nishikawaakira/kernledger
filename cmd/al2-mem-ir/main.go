@@ -17,6 +17,7 @@ import (
 	// Distro adapters. Order does not matter; each calls
 	// distro.Register from its init().
 	_ "github.com/example/al2-mem-ir/internal/distro/amazonlinux2"
+	_ "github.com/example/al2-mem-ir/internal/distro/amazonlinux2023"
 )
 
 // Set via -ldflags at build time. See Makefile.

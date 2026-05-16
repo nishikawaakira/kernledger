@@ -11,6 +11,8 @@ workstation with [Volatility 3](https://github.com/volatilityfoundation/volatili
 > **MVP scope**: `inspect`, `collect`, `package`, and `acquire --dry-run`
 > are functional. `acquire --execute`, `symbols`, and `analyze` have
 > working implementations but are exercised only as plumbing in this MVP.
+> Distro adapters: `amazonlinux2` is the primary target; `amazonlinux2023`
+> ships as a second adapter that validates the plugin pattern.
 
 ## What this tool is NOT
 
@@ -175,7 +177,9 @@ internal/
   distro/
     distro.go               # Adapter interface + registry
     osrelease.go            # /etc/os-release parser
-    amazonlinux2/           # MVP adapter
+    amazonlinux2/           # AL2 adapter (MVP target)
+    amazonlinux2023/        # AL2023 adapter
+    registrytest/           # cross-adapter disambiguation tests
 docs/
   usage.md
   forensic-considerations.md
@@ -211,15 +215,21 @@ To add support for a new distro:
 
 No `if/switch` ladders anywhere in the CLI.
 
-Planned adapters (not implemented in the MVP):
+Adapter status:
 
-- `amazonlinux2023`
-- `rhel`
-- `rocky`
-- `almalinux`
-- `ubuntu`
-- `debian`
-- `amazonlinux1` (best-effort; EOL)
+- `amazonlinux2` — **shipped** (MVP target)
+- `amazonlinux2023` — **shipped**: validates the plugin pattern across
+  two members of the same family. Detection disambiguates AL2 vs
+  AL2023 by `VERSION_ID` without any if/switch in the dispatcher.
+- `rhel` — planned
+- `rocky` / `almalinux` — planned (likely sharing a RHEL-family helper)
+- `ubuntu` / `debian` — planned
+- `amazonlinux1` — best-effort; EOL
+
+When a third RHEL-family adapter lands (RHEL 9, Rocky, AlmaLinux), the
+truly-common defaults will be lifted into an `internal/distro/rhelfamily/`
+helper. Until then the AL2 and AL2023 adapters intentionally duplicate
+~70% of their declarations rather than choosing the wrong abstraction.
 
 ## Documentation
 

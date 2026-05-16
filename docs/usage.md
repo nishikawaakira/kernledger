@@ -3,6 +3,19 @@
 Audience: incident responders who already have authorization to act on
 the target host.
 
+## Supported targets
+
+The binary auto-detects the host from `/etc/os-release` and selects
+the matching distro adapter. Shipped adapters:
+
+| `--distro` value      | Target                       |
+| --------------------- | ---------------------------- |
+| `amazonlinux2`        | Amazon Linux 2               |
+| `amazonlinux2023`     | Amazon Linux 2023            |
+
+If auto-detection misfires (chroot, container, stripped `/etc/os-release`),
+pass `--distro <id>` explicitly to every subcommand.
+
 ## 0. Pre-flight checklist
 
 - [ ] You have written approval to acquire memory and collect artifacts
