@@ -3,6 +3,11 @@
 Audience: incident responders who already have authorization to act on
 the target host.
 
+> **Trying the tool for the first time?** Read this file for the
+> per-command reference, but follow [`tryout-ec2.md`](tryout-ec2.md) for
+> a fully concrete EC2 + LiME + Volatility 3 walkthrough you can
+> reproduce in ~30 minutes.
+
 ## Supported targets
 
 The binary auto-detects the host from `/etc/os-release` and selects

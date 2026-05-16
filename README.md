@@ -239,9 +239,20 @@ their declarations rather than choosing the wrong abstraction.
 
 ## Documentation
 
-- [`docs/usage.md`](docs/usage.md) — runbook
+- [`docs/host-runbook.md`](docs/host-runbook.md) — **cheat sheet for
+  the IR action itself.** Host-side commands only, ~100 lines.
+  Assumes LiME `.ko` and the binary are already staged. This is what
+  you keep open in another tab when you're on the keyboard.
+- [`docs/usage.md`](docs/usage.md) — per-command flag reference, every
+  option, all failure modes.
 - [`docs/forensic-considerations.md`](docs/forensic-considerations.md) — what
   this tool means for evidence quality, EDR visibility, and SOC workflow.
+  Read before defending the chain of custody to a reviewer.
+- [`docs/tryout-ec2.md`](docs/tryout-ec2.md) — **first time using the
+  tool end-to-end?** Copy-paste walkthrough that covers the prep
+  (launching an EC2 instance, building LiME, staging the binary), the
+  IR action itself, and a full Volatility 3 plugin run from a Mac.
+  ~30 minutes, ~USD $0.10. Treats analyst-side setup as in scope.
 
 ## License
 
