@@ -1,0 +1,160 @@
+{
+  "schema_version": "1.0.0",
+  "tool": {
+    "name": "al2-mem-ir",
+    "version": "0.1.0",
+    "commit": "abc1234",
+    "distro_adapter": "amazonlinux2"
+  },
+  "case": {
+    "case_id": "CASE-1234",
+    "operator": "alice",
+    "reason": "SEC-1234 suspected lateral movement",
+    "authority": "SOC on-call"
+  },
+  "host": {
+    "hostname": "ip-10-0-12-34",
+    "kernel_release": "5.10.220-209.869.amzn2.x86_64",
+    "kernel_version": "#1 SMP Tue Apr 16 14:00:00 UTC 2024",
+    "architecture": "x86_64",
+    "os_pretty_name": "Amazon Linux 2",
+    "os_id": "amzn",
+    "os_version_id": "2"
+  },
+  "cloud": {
+    "provider": "aws-ec2",
+    "instance_id": "i-0abcdef1234567890",
+    "instance_type": "m5.large",
+    "region": "ap-northeast-1",
+    "availability_zone": "ap-northeast-1a",
+    "account_id": "123456789012",
+    "ami_id": "ami-0abcdef1234567890"
+  },
+  "acquisition": {
+    "engine": "lime",
+    "module_path": "/tmp/lime-5.10.220-209.869.amzn2.x86_64.ko",
+    "module_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "output_path": "/mnt/forensic/CASE-1234/memory.lime",
+    "output_format": "lime",
+    "output_mode": "file",
+    "insmod_started_at": "2026-05-16T01:24:34Z",
+    "insmod_ended_at":   "2026-05-16T01:31:02Z",
+    "rmmod_performed": true,
+    "rmmod_ended_at": "2026-05-16T01:31:04Z",
+    "image_sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+    "image_bytes": 8589934592,
+    "dry_run": false,
+    "notes": ""
+  },
+  "collection": {
+    "started_at": "2026-05-16T01:20:00Z",
+    "ended_at":   "2026-05-16T01:23:55Z",
+    "output_dir": "/mnt/forensic/CASE-1234/collect",
+    "included_env": false,
+    "items": [
+      {
+        "name": "uname",
+        "command": "uname",
+        "args": ["-a"],
+        "stdout_path": "/mnt/forensic/CASE-1234/collect/uname.out",
+        "stderr_path": "/mnt/forensic/CASE-1234/collect/uname.err",
+        "exit_code": 0,
+        "duration_ns": 1234567
+      },
+      {
+        "name": "ps",
+        "command": "ps",
+        "args": ["auxwwf"],
+        "stdout_path": "/mnt/forensic/CASE-1234/collect/ps.out",
+        "stderr_path": "/mnt/forensic/CASE-1234/collect/ps.err",
+        "exit_code": 0,
+        "duration_ns": 23456789
+      },
+      {
+        "name": "ss-tcp",
+        "command": "ss",
+        "args": ["-antp"],
+        "stdout_path": "/mnt/forensic/CASE-1234/collect/ss-tcp.out",
+        "stderr_path": "/mnt/forensic/CASE-1234/collect/ss-tcp.err",
+        "exit_code": 0,
+        "duration_ns": 12345678
+      },
+      {
+        "name": "nft",
+        "command": "nft",
+        "args": ["list", "ruleset"],
+        "stdout_path": "/mnt/forensic/CASE-1234/collect/nft.out",
+        "stderr_path": "/mnt/forensic/CASE-1234/collect/nft.err",
+        "exit_code": 1,
+        "duration_ns": 4567890,
+        "error": "command nft failed: exit status 1"
+      }
+    ]
+  },
+  "analysis": {
+    "volatility_path": "/opt/volatility3/vol.py",
+    "image_path": "/data/CASE-1234/memory.lime",
+    "symbols_path": "/data/CASE-1234/symbols",
+    "started_at": "2026-05-16T02:00:00Z",
+    "ended_at":   "2026-05-16T02:18:42Z",
+    "plugin_results": [
+      {
+        "plugin": "linux.pslist",
+        "command": "/opt/volatility3/vol.py",
+        "args": ["-f", "/data/CASE-1234/memory.lime", "-s", "/data/CASE-1234/symbols", "linux.pslist"],
+        "output_path": "/data/CASE-1234/analysis/linux_pslist.text",
+        "format": "text",
+        "exit_code": 0,
+        "started_at": "2026-05-16T02:00:01Z",
+        "ended_at":   "2026-05-16T02:02:15Z",
+        "duration_ns": 134000000000
+      },
+      {
+        "plugin": "linux.bash",
+        "command": "/opt/volatility3/vol.py",
+        "args": ["-f", "/data/CASE-1234/memory.lime", "-s", "/data/CASE-1234/symbols", "linux.bash"],
+        "output_path": "/data/CASE-1234/analysis/linux_bash.text",
+        "format": "text",
+        "exit_code": 0,
+        "started_at": "2026-05-16T02:02:16Z",
+        "ended_at":   "2026-05-16T02:03:01Z",
+        "duration_ns": 45000000000
+      }
+    ],
+    "report_path": "/data/CASE-1234/analysis/report.md"
+  },
+  "artifacts": [
+    {
+      "path": "audit.log",
+      "sha256": "5d41402abc4b2a76b9719d911017c592fdf3b1c5d8b07d36cd6f7e35bc1e2a04",
+      "size_bytes": 2048,
+      "kind": "audit_log"
+    },
+    {
+      "path": "acquire-manifest.json",
+      "sha256": "8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a",
+      "size_bytes": 1024,
+      "kind": "manifest"
+    },
+    {
+      "path": "collect-manifest.json",
+      "sha256": "9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b",
+      "size_bytes": 3072,
+      "kind": "manifest"
+    },
+    {
+      "path": "collect/uname.out",
+      "sha256": "1c2f8d63b9e4f4a5b6c7a8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9",
+      "size_bytes": 96,
+      "kind": "command_output"
+    },
+    {
+      "path": "memory.lime",
+      "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+      "size_bytes": 8589934592,
+      "kind": "memory_image"
+    }
+  ],
+  "created_at": "2026-05-16T01:32:00Z",
+  "_note": "manifest.json itself is intentionally omitted from the artifacts list — a file cannot record its own SHA-256. The tarball's overall SHA-256 is printed by 'al2-mem-ir package' and stored in audit.log."
+}

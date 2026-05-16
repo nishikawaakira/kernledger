@@ -1,0 +1,16 @@
+dist/
+*.tar.gz
+*.lime
+*.raw
+
+# Local IR work product should never be committed.
+out/
+evidence/
+
+# IDE / OS junk
+.DS_Store
+.idea/
+.vscode/
+
+# Local Claude Code settings (per-clone, not shared)
+.claude/
