@@ -18,12 +18,16 @@ import (
 	// here to populate the registry exactly the way cmd/al2-mem-ir does.
 	_ "github.com/example/al2-mem-ir/internal/distro/amazonlinux2"
 	_ "github.com/example/al2-mem-ir/internal/distro/amazonlinux2023"
+	_ "github.com/example/al2-mem-ir/internal/distro/ubuntu"
 )
 
-// TestDetect_AL2vsAL2023 is the load-bearing test for the plugin
-// pattern: both adapters have ID "amzn" so the registry must
-// disambiguate by VERSION_ID without any if/switch.
-func TestDetect_AL2vsAL2023(t *testing.T) {
+// TestDetect_AcrossAdapters is the load-bearing test for the plugin
+// pattern. The dispatcher must route by (ID, VERSION_ID) without any
+// if/switch — including:
+//   - AL2 vs AL2023 (same ID=amzn, different VERSION_ID)
+//   - Ubuntu (different ID, matches ANY VERSION_ID by design)
+//   - Unknown / closely-related distros must fail loudly
+func TestDetect_AcrossAdapters(t *testing.T) {
 	cases := []struct {
 		os      distro.OSInfo
 		wantID  string
@@ -31,10 +35,23 @@ func TestDetect_AL2vsAL2023(t *testing.T) {
 	}{
 		{distro.OSInfo{ID: "amzn", VersionID: "2"}, "amazonlinux2", false},
 		{distro.OSInfo{ID: "amzn", VersionID: "2023"}, "amazonlinux2023", false},
+		{distro.OSInfo{ID: "ubuntu", VersionID: "20.04"}, "ubuntu", false},
+		{distro.OSInfo{ID: "ubuntu", VersionID: "22.04"}, "ubuntu", false},
+		{distro.OSInfo{ID: "ubuntu", VersionID: "24.04"}, "ubuntu", false},
+		// Future Ubuntu LTS should keep routing to the same adapter.
+		{distro.OSInfo{ID: "ubuntu", VersionID: "26.04"}, "ubuntu", false},
+
 		// An unknown amzn version must NOT silently bind to either
 		// adapter — better to fail loudly so the operator notices.
 		{distro.OSInfo{ID: "amzn", VersionID: "1"}, "", true},
 		{distro.OSInfo{ID: "amzn", VersionID: ""}, "", true},
+
+		// Debian is closely related to Ubuntu but does NOT yet have an
+		// adapter. The Ubuntu adapter must not match it.
+		{distro.OSInfo{ID: "debian", VersionID: "12"}, "", true},
+
+		// Total miss.
+		{distro.OSInfo{ID: "alpine", VersionID: "3.19"}, "", true},
 	}
 	for _, c := range cases {
 		got, err := distro.DetectFromOSRelease(c.os)
@@ -54,11 +71,11 @@ func TestDetect_AL2vsAL2023(t *testing.T) {
 	}
 }
 
-// TestIDs_IncludesBothAdapters guards against accidental adapter
-// removal (e.g. a future refactor that forgets to keep AL2 around).
-func TestIDs_IncludesBothAdapters(t *testing.T) {
+// TestIDs_IncludesAllAdapters guards against accidental adapter
+// removal (e.g. a future refactor that forgets to keep one around).
+func TestIDs_IncludesAllAdapters(t *testing.T) {
 	ids := distro.IDs()
-	wantAll := []string{"amazonlinux2", "amazonlinux2023"}
+	wantAll := []string{"amazonlinux2", "amazonlinux2023", "ubuntu"}
 	have := map[string]bool{}
 	for _, id := range ids {
 		have[id] = true

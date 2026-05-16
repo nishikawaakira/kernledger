@@ -114,6 +114,13 @@ func (c *Collector) buildItems() []Item {
 		{Name: "lsmod", Cmd: "lsmod", Args: nil},
 		{Name: "mount", Cmd: "mount", Args: nil},
 		{Name: "lsof-deleted", Cmd: "lsof", Args: []string{"+L1"}, Optional: true, Timeout: 60 * time.Second},
+		// LSM status snapshots. Both are Optional so a host that has only
+		// one LSM (or neither) skips silently — common on AL2 (SELinux
+		// typically disabled) and on Ubuntu cloud AMIs (AppArmor in
+		// complain mode). Adding both at the generic layer means we
+		// don't need to fan them out per-adapter.
+		{Name: "sestatus", Cmd: "sestatus", Args: nil, Optional: true},
+		{Name: "aa-status", Cmd: "aa-status", Args: nil, Optional: true},
 	}
 
 	if c.Adapter != nil {

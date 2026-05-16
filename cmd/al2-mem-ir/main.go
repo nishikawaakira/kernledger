@@ -18,6 +18,7 @@ import (
 	// distro.Register from its init().
 	_ "github.com/example/al2-mem-ir/internal/distro/amazonlinux2"
 	_ "github.com/example/al2-mem-ir/internal/distro/amazonlinux2023"
+	_ "github.com/example/al2-mem-ir/internal/distro/ubuntu"
 )
 
 // Set via -ldflags at build time. See Makefile.

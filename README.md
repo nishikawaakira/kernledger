@@ -12,7 +12,8 @@ workstation with [Volatility 3](https://github.com/volatilityfoundation/volatili
 > are functional. `acquire --execute`, `symbols`, and `analyze` have
 > working implementations but are exercised only as plumbing in this MVP.
 > Distro adapters: `amazonlinux2` is the primary target; `amazonlinux2023`
-> ships as a second adapter that validates the plugin pattern.
+> and `ubuntu` ship as additional adapters proving the plugin pattern
+> works across both RHEL-family and Debian-family hosts.
 
 ## What this tool is NOT
 
@@ -179,6 +180,7 @@ internal/
     osrelease.go            # /etc/os-release parser
     amazonlinux2/           # AL2 adapter (MVP target)
     amazonlinux2023/        # AL2023 adapter
+    ubuntu/                 # Ubuntu LTS adapter (any VERSION_ID)
     registrytest/           # cross-adapter disambiguation tests
 docs/
   usage.md
@@ -218,18 +220,22 @@ No `if/switch` ladders anywhere in the CLI.
 Adapter status:
 
 - `amazonlinux2` — **shipped** (MVP target)
-- `amazonlinux2023` — **shipped**: validates the plugin pattern across
-  two members of the same family. Detection disambiguates AL2 vs
+- `amazonlinux2023` — **shipped**. Detection disambiguates AL2 vs
   AL2023 by `VERSION_ID` without any if/switch in the dispatcher.
+- `ubuntu` — **shipped**. Matches every Ubuntu LTS by `ID=ubuntu`
+  regardless of `VERSION_ID` (20.04 / 22.04 / 24.04 / future). First
+  Debian-family adapter — exercises `LimeHints` with `linux-headers-*`
+  and `linux-image-*-dbgsym` naming.
+- `debian` — planned (will inherit most of `ubuntu`'s paths)
 - `rhel` — planned
 - `rocky` / `almalinux` — planned (likely sharing a RHEL-family helper)
-- `ubuntu` / `debian` — planned
 - `amazonlinux1` — best-effort; EOL
 
 When a third RHEL-family adapter lands (RHEL 9, Rocky, AlmaLinux), the
 truly-common defaults will be lifted into an `internal/distro/rhelfamily/`
-helper. Until then the AL2 and AL2023 adapters intentionally duplicate
-~70% of their declarations rather than choosing the wrong abstraction.
+helper. Same plan applies to Debian-family (`internal/distro/debianfamily/`)
+once Debian lands. Until then adapters intentionally duplicate ~70% of
+their declarations rather than choosing the wrong abstraction.
 
 ## Documentation
 

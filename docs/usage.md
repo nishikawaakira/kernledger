@@ -8,13 +8,25 @@ the target host.
 The binary auto-detects the host from `/etc/os-release` and selects
 the matching distro adapter. Shipped adapters:
 
-| `--distro` value      | Target                       |
-| --------------------- | ---------------------------- |
-| `amazonlinux2`        | Amazon Linux 2               |
-| `amazonlinux2023`     | Amazon Linux 2023            |
+| `--distro` value      | Target                                        |
+| --------------------- | --------------------------------------------- |
+| `amazonlinux2`        | Amazon Linux 2                                |
+| `amazonlinux2023`     | Amazon Linux 2023                             |
+| `ubuntu`              | Ubuntu LTS (any VERSION_ID — 20.04/22.04/24.04/…) |
 
 If auto-detection misfires (chroot, container, stripped `/etc/os-release`),
 pass `--distro <id>` explicitly to every subcommand.
+
+Adapter-specific operational notes:
+
+- **`ubuntu`**: log paths follow Debian conventions
+  (`/var/log/auth.log` instead of `/var/log/secure`, `/var/log/syslog`
+  instead of `/var/log/messages`, `/var/log/dpkg.log` + `/var/log/apt/*`).
+  LiME build deps are named `linux-headers-$(uname -r)` and
+  `linux-image-$(uname -r)-dbgsym` (the latter requires enabling
+  ddebs.ubuntu.com). Secure Boot / kernel-lockdown are enabled by
+  default on most Ubuntu cloud AMIs, which rejects unsigned LiME
+  modules — `inspect` surfaces this as a warning.
 
 ## 0. Pre-flight checklist
 
