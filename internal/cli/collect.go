@@ -21,9 +21,6 @@ type collectCmd struct {
 	includeEnv   bool
 	allowNonRoot bool
 	caseID       string
-	operator     string
-	reason       string
-	authority    string
 }
 
 func newCollectCmd(version, commit string) *collectCmd {
@@ -37,10 +34,7 @@ func (c *collectCmd) SetFlags(fs *flag.FlagSet) {
 	c.cf.bind(fs)
 	fs.BoolVar(&c.includeEnv, "include-env", false, "include environment variables (off by default; may contain secrets)")
 	fs.BoolVar(&c.allowNonRoot, "allow-non-root", false, "skip the root precheck (some artifacts will be missing or empty)")
-	fs.StringVar(&c.caseID, "case-id", "", "case identifier for chain of custody")
-	fs.StringVar(&c.operator, "operator", "", "operator name / id")
-	fs.StringVar(&c.reason, "reason", "", "short justification (ticket id, incident id)")
-	fs.StringVar(&c.authority, "authority", "", "approving authority (e.g. SOC lead)")
+	fs.StringVar(&c.caseID, "case-id", "", "case identifier (links manifest to ticket / case-management system)")
 }
 
 func (c *collectCmd) Run(ctx context.Context, _ []string) error {
@@ -63,11 +57,10 @@ func (c *collectCmd) Run(ctx context.Context, _ []string) error {
 	}
 
 	log.Info("collect.start", "starting collection", map[string]interface{}{
-		"out":      outDir,
-		"adapter":  adapter.ID(),
-		"dry_run":  c.cf.DryRun,
-		"case_id":  c.caseID,
-		"operator": c.operator,
+		"out":     outDir,
+		"adapter": adapter.ID(),
+		"dry_run": c.cf.DryRun,
+		"case_id": c.caseID,
 	})
 
 	exec := executor.NewReal(30 * time.Second)
@@ -84,12 +77,7 @@ func (c *collectCmd) Run(ctx context.Context, _ []string) error {
 
 	hostname, _ := os.Hostname()
 	m := manifest.New(c.version, c.commit, adapter.ID())
-	m.Case = manifest.CaseInfo{
-		CaseID:    c.caseID,
-		Operator:  c.operator,
-		Reason:    c.reason,
-		Authority: c.authority,
-	}
+	m.Case = manifest.CaseInfo{CaseID: c.caseID}
 	m.Host = manifest.HostInfo{
 		Hostname:      hostname,
 		KernelRelease: readFile("/proc/sys/kernel/osrelease"),

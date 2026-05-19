@@ -28,9 +28,6 @@ type acquireCmd struct {
 	execute      bool
 	allowNonRoot bool
 	caseID       string
-	operator     string
-	reason       string
-	authority    string
 }
 
 func newAcquireCmd(version, commit string) *acquireCmd {
@@ -50,10 +47,7 @@ func (c *acquireCmd) SetFlags(fs *flag.FlagSet) {
 	fs.BoolVar(&c.doRmmod, "rmmod", false, "rmmod after acquisition")
 	fs.BoolVar(&c.execute, "execute", false, "SAFETY GATE: actually run insmod. Without this, only the plan is recorded.")
 	fs.BoolVar(&c.allowNonRoot, "allow-non-root", false, "skip the root precheck")
-	fs.StringVar(&c.caseID, "case-id", "", "case identifier")
-	fs.StringVar(&c.operator, "operator", "", "operator name / id")
-	fs.StringVar(&c.reason, "reason", "", "short justification")
-	fs.StringVar(&c.authority, "authority", "", "approving authority")
+	fs.StringVar(&c.caseID, "case-id", "", "case identifier (links manifest to ticket / case-management system)")
 }
 
 func (c *acquireCmd) Run(ctx context.Context, _ []string) error {
@@ -154,12 +148,7 @@ func realOrDryRun(real executor.Executor, dry bool) executor.Executor {
 func persistAcquireManifest(c *acquireCmd, outDir string, osInfo distro.OSInfo, adapterID string, acq *manifest.Acquisition) error {
 	hostname, _ := os.Hostname()
 	m := manifest.New(c.version, c.commit, adapterID)
-	m.Case = manifest.CaseInfo{
-		CaseID:    c.caseID,
-		Operator:  c.operator,
-		Reason:    c.reason,
-		Authority: c.authority,
-	}
+	m.Case = manifest.CaseInfo{CaseID: c.caseID}
 	m.Host = manifest.HostInfo{
 		Hostname:      hostname,
 		KernelRelease: readFile("/proc/sys/kernel/osrelease"),

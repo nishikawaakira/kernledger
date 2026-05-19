@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "2.0.0",
   "tool": {
     "name": "al2-mem-ir",
     "version": "0.1.0",
@@ -7,10 +7,13 @@
     "distro_adapter": "amazonlinux2"
   },
   "case": {
-    "case_id": "CASE-1234",
-    "operator": "alice",
-    "reason": "SEC-1234 suspected lateral movement",
-    "authority": "SOC on-call"
+    "case_id": "CASE-1234"
+  },
+  "identity": {
+    "effective_uid": 0,
+    "effective_username": "root",
+    "login_uid": 1000,
+    "login_username": "ec2-user"
   },
   "host": {
     "hostname": "ip-10-0-12-34",

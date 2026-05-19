@@ -39,15 +39,16 @@ preparation steps (instance launch, LiME build, binary staging).
 Thread the same case id through every command so the manifests link up.
 
 ```sh
-export CASE_ID=CASE-1234         # ticket id
-export OPERATOR=alice            # your identity
-export REASON="SEC-1234 suspected lateral movement"
-export AUTHORITY="SOC on-call"
-
+export CASE_ID=CASE-1234         # ticket id — the only operator-supplied chain-of-custody field
 export OUT=/mnt/forensic/$CASE_ID
 export TOOL=/tmp/al2-mem-ir
 export LIME_KO=/tmp/lime-$(uname -r).ko
 ```
+
+Operator identity is not entered as a flag — the manifest records the
+effective uid and `/proc/self/loginuid` automatically. Approving
+authority and incident justification stay in the ticket (`$CASE_ID`),
+not in CLI flags. See `forensic-considerations.md` § 5.
 
 ## 1. inspect (read-only, run first)
 
@@ -67,8 +68,7 @@ Check:
 ```sh
 sudo $TOOL collect \
   --out  $OUT \
-  --case-id $CASE_ID --operator $OPERATOR \
-  --reason "$REASON" --authority "$AUTHORITY"
+  --case-id $CASE_ID
 ```
 
 Use `--include-env` only if you've decided that environment variables
@@ -82,7 +82,7 @@ sudo $TOOL acquire \
   --module $LIME_KO \
   --output memory.lime \
   --format lime \
-  --case-id $CASE_ID --operator $OPERATOR \
+  --case-id $CASE_ID \
   --dry-run
 
 jq '.acquisition' $OUT/acquire-manifest.json
@@ -100,7 +100,7 @@ sudo $TOOL acquire \
   --output memory.lime \
   --format lime \
   --rmmod \
-  --case-id $CASE_ID --operator $OPERATOR \
+  --case-id $CASE_ID \
   --execute
 
 sha256sum $OUT/memory.lime
@@ -119,20 +119,19 @@ If `insmod` fails, the tool captures `dmesg -T` to
 sudo $TOOL package \
   --in $OUT \
   --tarball /mnt/forensic/$CASE_ID.tar.gz \
-  --case-id $CASE_ID --operator $OPERATOR \
-  --reason "$REASON" --authority "$AUTHORITY" \
+  --case-id $CASE_ID \
   --include-ec2-metadata
 ```
 
 The command prints the SHA-256 of the tarball — **write it down** in
 the ticket. It is the integrity anchor for the bundle as a whole.
 
-Operator-supplied chain-of-custody overrides (use when IMDS is disabled
-or you want to pin runbook values regardless of host state):
+Cloud metadata overrides (use when IMDS is disabled or you want to pin
+runbook values regardless of host state):
 
 ```sh
 sudo $TOOL package --in $OUT --tarball /mnt/forensic/$CASE_ID.tar.gz \
-  --case-id $CASE_ID --operator $OPERATOR \
+  --case-id $CASE_ID \
   --instance-id i-0abcdef1234567890 \
   --region ap-northeast-1 \
   --account-id 123456789012

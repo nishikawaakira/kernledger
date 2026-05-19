@@ -52,9 +52,6 @@ type Options struct {
 	InDir              string
 	OutPath            string // .tar.gz file to create
 	CaseID             string
-	Operator           string
-	Reason             string
-	Authority          string
 	IncludeEC2Metadata bool
 	// Operator-provided overrides for cloud fields. When non-empty,
 	// these take precedence over IMDS values (or substitute for them
@@ -93,12 +90,7 @@ func Build(ctx context.Context, log *audit.Logger, opts Options) (*BuildResult, 
 	}
 
 	m := manifest.New(opts.ToolVersion, opts.ToolCommit, adapterID(opts.Adapter))
-	m.Case = manifest.CaseInfo{
-		CaseID:    opts.CaseID,
-		Operator:  opts.Operator,
-		Reason:    opts.Reason,
-		Authority: opts.Authority,
-	}
+	m.Case = manifest.CaseInfo{CaseID: opts.CaseID}
 	hostname, _ := os.Hostname()
 	m.Host = manifest.HostInfo{
 		Hostname:      hostname,

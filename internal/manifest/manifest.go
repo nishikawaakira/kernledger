@@ -18,13 +18,24 @@ import (
 
 // SchemaVersion bumps when fields are removed or semantically changed.
 // Additive changes do not require a bump.
-const SchemaVersion = "1.0.0"
+//
+// 2.0.0 (breaking, 2026-05): Drop CaseInfo.Operator / Reason / Authority.
+//   Real IR tooling does not collect self-declared operator identity
+//   via CLI flags — that data is recorded by the case-management
+//   system (Linear, Jira, TheHive, etc.) at the authenticated layer,
+//   and reproducing it as free text in the manifest just adds
+//   surface area for forgery. We now record OS-level identity
+//   (effective uid + loginuid + usernames) automatically via the new
+//   Identity struct. CaseID stays — it is the single linkage to the
+//   external ticket.
+const SchemaVersion = "2.0.0"
 
 // Manifest is the top-level evidence record.
 type Manifest struct {
 	SchemaVersion string         `json:"schema_version"`
 	Tool          ToolInfo       `json:"tool"`
 	Case          CaseInfo       `json:"case"`
+	Identity      *Identity      `json:"identity,omitempty"`
 	Host          HostInfo       `json:"host"`
 	Cloud         *CloudInfo     `json:"cloud,omitempty"`
 	Acquisition   *Acquisition   `json:"acquisition,omitempty"`
@@ -43,12 +54,19 @@ type ToolInfo struct {
 	Distro  string `json:"distro_adapter"`
 }
 
-// CaseInfo carries chain-of-custody fields.
+// CaseInfo carries the single operator-supplied chain-of-custody
+// field: a stable identifier that links the manifest to the external
+// case-management system (ticket id / incident id).
+//
+// We deliberately do NOT store operator name, reason, or approving
+// authority here. Those are properties of the *case*, recorded once in
+// Linear / Jira / TheHive / etc. by an authenticated user, and looked
+// up via CaseID. Reproducing them here as free text would just give
+// reviewers a self-declared blob they have no way to verify.
+//
+// See manifest.Identity for the authenticated-by-the-OS counterpart.
 type CaseInfo struct {
-	CaseID    string `json:"case_id,omitempty"`
-	Operator  string `json:"operator,omitempty"`
-	Reason    string `json:"reason,omitempty"`
-	Authority string `json:"authority,omitempty"`
+	CaseID string `json:"case_id,omitempty"`
 }
 
 // HostInfo describes the target system.
@@ -186,7 +204,10 @@ type EventSummary struct {
 	Message   string    `json:"message,omitempty"`
 }
 
-// New constructs a Manifest with defaults filled in.
+// New constructs a Manifest with defaults filled in. Identity is
+// captured automatically from the running process (effective uid +
+// /proc/self/loginuid). Tests that want a deterministic Identity may
+// overwrite m.Identity after construction.
 func New(toolVersion, commit, distroAdapter string) *Manifest {
 	return &Manifest{
 		SchemaVersion: SchemaVersion,
@@ -196,6 +217,7 @@ func New(toolVersion, commit, distroAdapter string) *Manifest {
 			Commit:  commit,
 			Distro:  distroAdapter,
 		},
+		Identity:  CaptureIdentity(),
 		CreatedAt: time.Now().UTC(),
 	}
 }

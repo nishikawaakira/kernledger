@@ -49,7 +49,7 @@ func TestAnalysisSummary(t *testing.T) {
 
 func TestRoundTrip(t *testing.T) {
 	m := New("0.1.0", "abc1234", "amazonlinux2")
-	m.Case = CaseInfo{CaseID: "C-1", Operator: "alice"}
+	m.Case = CaseInfo{CaseID: "C-1"}
 	m.Artifacts = []Artifact{
 		{Path: "memory.lime", SHA256: "deadbeef", Size: 42, Kind: "memory_image"},
 	}
@@ -74,5 +74,29 @@ func TestRoundTrip(t *testing.T) {
 	}
 	if got.Tool.Name != "al2-mem-ir" {
 		t.Errorf("tool = %+v", got.Tool)
+	}
+	// New() must auto-capture Identity. It is OS-dependent so we only
+	// check that the structure exists and EffectiveUID got assigned
+	// (which is always true; os.Geteuid() always returns a value).
+	if got.Identity == nil {
+		t.Error("Identity not captured by New()")
+	}
+}
+
+// TestCaptureIdentity exercises the OS identity capture. We can only
+// assert weak invariants because the OS user identity varies by
+// environment, but a nil receiver / empty struct would be a regression.
+func TestCaptureIdentity(t *testing.T) {
+	id := CaptureIdentity()
+	if id == nil {
+		t.Fatal("CaptureIdentity returned nil")
+	}
+	if id.EffectiveUID < 0 {
+		t.Errorf("effective_uid should be >= 0, got %d", id.EffectiveUID)
+	}
+	// LoginUID is -1 when /proc/self/loginuid is absent (macOS, no audit).
+	// On Linux with audit it's a real uid (>= 0). Either is acceptable here.
+	if id.LoginUID < -1 {
+		t.Errorf("login_uid out of expected range: %d", id.LoginUID)
 	}
 }

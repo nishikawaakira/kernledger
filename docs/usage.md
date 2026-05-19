@@ -35,8 +35,10 @@ Adapter-specific operational notes:
 
 ## 0. Pre-flight checklist
 
-- [ ] You have written approval to acquire memory and collect artifacts
-      (ticket id captured into `--reason`, approver into `--authority`).
+- [ ] You have written approval to acquire memory and collect artifacts.
+      The ticket id goes into `--case-id`; the approving authority and
+      justification are recorded in the ticket itself, not in CLI
+      flags — see § "Chain of custody fields" in forensic-considerations.md.
 - [ ] The SOC has been notified that a LiME kernel module will be loaded
       on the target instance. Acquisition is **visible** to GuardDuty
       Runtime Monitoring, auditd, and any EDR.
@@ -76,10 +78,7 @@ sudo ./al2-mem-ir inspect --json --quiet > /mnt/forensic/inspect.json
 ```sh
 sudo ./al2-mem-ir collect \
   --out /mnt/forensic/CASE-1234 \
-  --case-id CASE-1234 \
-  --operator alice \
-  --reason "SEC-1234 lateral movement" \
-  --authority "SOC lead"
+  --case-id CASE-1234
 ```
 
 Effects:
@@ -112,7 +111,7 @@ sudo ./al2-mem-ir acquire \
   --out /mnt/forensic/CASE-1234 \
   --module /tmp/lime-$(uname -r).ko \
   --output memory.lime \
-  --case-id CASE-1234 --operator alice \
+  --case-id CASE-1234 \
   --dry-run
 ```
 
@@ -125,7 +124,7 @@ sudo ./al2-mem-ir acquire \
   --output memory.lime \
   --format lime \
   --rmmod \
-  --case-id CASE-1234 --operator alice \
+  --case-id CASE-1234 \
   --execute
 ```
 
@@ -147,9 +146,7 @@ After both `collect` and `acquire` are done, bundle:
 sudo ./al2-mem-ir package \
   --in /mnt/forensic/CASE-1234 \
   --tarball /mnt/forensic/CASE-1234.tar.gz \
-  --case-id CASE-1234 --operator alice \
-  --reason "SEC-1234 lateral movement" \
-  --authority "SOC lead" \
+  --case-id CASE-1234 \
   --include-ec2-metadata
 ```
 
@@ -226,7 +223,7 @@ al2-mem-ir analyze \
   --image  ./memory.lime \
   --symbols ./symbols \
   --format text \
-  --case-id CASE-1234 --operator bob \
+  --case-id CASE-1234 \
   --out ./analysis
 ```
 

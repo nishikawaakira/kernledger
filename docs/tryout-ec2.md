@@ -273,10 +273,7 @@ Confirm:
 ```sh
 sudo /tmp/al2-mem-ir collect \
   --out /mnt/forensic/$CASE_ID \
-  --case-id $CASE_ID \
-  --operator $(whoami)@tryout \
-  --reason "al2-mem-ir end-to-end tryout" \
-  --authority "self"
+  --case-id $CASE_ID
 ```
 
 Spot-check the result:
@@ -299,7 +296,7 @@ sudo /tmp/al2-mem-ir acquire \
   --module "$LIME_KO" \
   --output memory.lime \
   --format lime \
-  --case-id $CASE_ID --operator $(whoami)@tryout \
+  --case-id $CASE_ID \
   --dry-run
 
 cat /mnt/forensic/$CASE_ID/acquire-manifest.json | jq '.acquisition'
@@ -317,7 +314,7 @@ sudo /tmp/al2-mem-ir acquire \
   --output memory.lime \
   --format lime \
   --rmmod \
-  --case-id $CASE_ID --operator $(whoami)@tryout \
+  --case-id $CASE_ID \
   --execute
 
 ls -la /mnt/forensic/$CASE_ID/memory.lime
@@ -366,9 +363,6 @@ sudo /tmp/al2-mem-ir package \
   --in /mnt/forensic/$CASE_ID \
   --tarball /mnt/forensic/$CASE_ID.tar.gz \
   --case-id $CASE_ID \
-  --operator $(whoami)@tryout \
-  --reason "al2-mem-ir tryout" \
-  --authority "self" \
   --include-ec2-metadata
 
 ls -la /mnt/forensic/$CASE_ID.tar.gz
@@ -449,7 +443,7 @@ is the layout Volatility looks for.
   --symbols $(pwd)/symbols \
   --format text \
   --out ./analysis \
-  --case-id $CASE_ID --operator analyst-mac
+  --case-id $CASE_ID
 ```
 
 > If you used the macOS arm64 build of al2-mem-ir, adjust the path. The

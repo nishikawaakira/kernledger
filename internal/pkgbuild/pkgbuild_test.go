@@ -35,7 +35,6 @@ func TestBuild_HashesAndTars(t *testing.T) {
 		InDir:       in,
 		OutPath:     out,
 		CaseID:      "C-TEST",
-		Operator:    "tester",
 		ToolVersion: "0.0.0",
 		ToolCommit:  "test",
 		Adapter:     nil,

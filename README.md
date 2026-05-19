@@ -56,7 +56,7 @@ referenced from a single JSON manifest.
 | Writes to the target host            | Restricted to `--out`. Operator chooses (e.g. a mounted forensic volume).          |
 | Root requirement                     | Enforced. Override only with `--allow-non-root` (creates evidence gaps).           |
 | Audit trail                          | Every external command + outcome → NDJSON `audit.log` inside `--out`.              |
-| Chain of custody                     | `--case-id`, `--operator`, `--reason`, `--authority` all flow into the manifest.   |
+| Chain of custody                     | `--case-id` links to the external ticket. OS identity (uid + `/proc/self/loginuid`) auto-captured. |
 | Cloud metadata access                | Off by default. Requires `--include-ec2-metadata`. Always IMDSv2.                  |
 | Environment variables in collection  | Off by default (`--include-env` to opt in; may contain secrets).                   |
 | EDR / GuardDuty visibility           | Surfaced in `inspect` as a warning; never circumvented.                            |
@@ -74,15 +74,14 @@ sudo ./al2-mem-ir inspect
 # Volatile collection:
 sudo ./al2-mem-ir collect \
   --out /mnt/forensic/CASE-1234 \
-  --case-id CASE-1234 --operator alice \
-  --reason "SEC-1234 lateral movement" --authority "SOC lead"
+  --case-id CASE-1234
 
 # Plan memory acquisition (no insmod yet):
 sudo ./al2-mem-ir acquire \
   --out /mnt/forensic/CASE-1234 \
   --module /tmp/lime-$(uname -r).ko \
   --output memory.lime \
-  --case-id CASE-1234 --operator alice --dry-run
+  --case-id CASE-1234 --dry-run
 
 # Actually run insmod (requires --execute on top of everything above):
 sudo ./al2-mem-ir acquire \
@@ -90,26 +89,32 @@ sudo ./al2-mem-ir acquire \
   --module /tmp/lime-$(uname -r).ko \
   --output memory.lime \
   --rmmod \
-  --case-id CASE-1234 --operator alice \
+  --case-id CASE-1234 \
   --execute
 
 # Bundle everything:
 sudo ./al2-mem-ir package \
   --in /mnt/forensic/CASE-1234 \
   --tarball /mnt/forensic/CASE-1234.tar.gz \
-  --case-id CASE-1234 --operator alice \
+  --case-id CASE-1234 \
   --include-ec2-metadata
 
-# Or pin chain-of-custody fields explicitly (useful when IMDS is
+# Or pin cloud metadata fields explicitly (useful when IMDS is
 # disabled, or when packaging on a separate forensic workstation):
 sudo ./al2-mem-ir package \
   --in /mnt/forensic/CASE-1234 \
   --tarball /mnt/forensic/CASE-1234.tar.gz \
-  --case-id CASE-1234 --operator alice \
+  --case-id CASE-1234 \
   --instance-id i-0abcdef1234567890 \
   --region ap-northeast-1 \
   --account-id 123456789012
 ```
+
+`--case-id` is the **only** operator-supplied chain-of-custody field.
+It exists to link the manifest back to your ticket / case-management
+system. Operator identity is auto-captured from the kernel
+(`os.Geteuid()` + `/proc/self/loginuid`) into the manifest's
+`identity` section — see `forensic-considerations.md` § 5.
 
 `package` prints the SHA-256 of the produced tarball; record it in your
 ticket. The in-memory manifest is byte-identical to the `manifest.json`
@@ -130,7 +135,7 @@ al2-mem-ir analyze \
   --image  ./memory.lime \
   --symbols ./symbols \
   --format text \
-  --case-id CASE-1234 --operator bob \
+  --case-id CASE-1234 \
   --out ./analysis
 ```
 
@@ -248,6 +253,9 @@ their declarations rather than choosing the wrong abstraction.
 - [`docs/forensic-considerations.md`](docs/forensic-considerations.md) — what
   this tool means for evidence quality, EDR visibility, and SOC workflow.
   Read before defending the chain of custody to a reviewer.
+- [`docs/lab-target.md`](docs/lab-target.md) — tiny helper process for
+  validating `collect` against live processes, child processes, and
+  open TCP/UDP sockets.
 - [`docs/tryout-ec2.md`](docs/tryout-ec2.md) — **first time using the
   tool end-to-end?** Copy-paste walkthrough that covers the prep
   (launching an EC2 instance, building LiME, staging the binary), the

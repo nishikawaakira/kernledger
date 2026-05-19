@@ -108,17 +108,54 @@ unit tests (`TestBuild_ManifestInTarballMatchesReturned`).
 
 ## 5. Chain of custody fields
 
-The manifest carries four operator-supplied fields:
+The manifest splits "who / why" data into two layers, by design.
 
-| Field         | Purpose                                                              |
-| ------------- | -------------------------------------------------------------------- |
-| `case_id`     | External ticket id (Linear / Jira / SecHub finding id).             |
-| `operator`    | Human-identifiable id of who ran the tool.                          |
-| `reason`      | Short justification, free text.                                     |
-| `authority`   | Who approved the action (SOC lead, on-call manager).                |
+### Layer 1: case linkage (operator-supplied, single field)
 
-None are required at the CLI level. **Use them.** A bundle without
-them is harder to defend in post-incident review.
+| Field      | Purpose                                                              |
+| ---------- | -------------------------------------------------------------------- |
+| `case_id`  | External ticket id (Linear / Jira / SecHub finding / TheHive case). |
+
+That is the **only** operator-typed chain-of-custody field. The
+acquisition is anchored to a ticket; the ticket is anchored to a
+person, an approval, and a justification — by the ticketing system,
+not by free-text CLI flags.
+
+### Layer 2: process identity (auto-captured, kernel-attested)
+
+| Field                          | Source                              |
+| ------------------------------ | ----------------------------------- |
+| `identity.effective_uid`       | `os.Geteuid()`                      |
+| `identity.effective_username`  | `/etc/passwd` lookup of EUID         |
+| `identity.login_uid`           | `/proc/self/loginuid` (Linux audit) |
+| `identity.login_username`      | `/etc/passwd` lookup of LoginUID    |
+
+`login_uid` is the load-bearing field: Linux's audit subsystem sets it
+to the uid of the user who initiated the session, and **the kernel
+preserves it across sudo/su**. So even a tool run via `sudo` records
+the real human user, not just `0`. `login_uid = -1` (or the sentinel
+`4294967295`) means the kernel has no session record — typical on
+macOS, on containers without audit support, or for boot-time invocations.
+
+### Why we dropped `--operator`, `--reason`, `--authority`
+
+Earlier MVPs accepted those as free-text CLI flags. We removed them
+because:
+
+1. **No real IR tool we surveyed has them** — LiME, AVML, fmem,
+   Volatility, The Sleuth Kit, GRR, and Velociraptor either capture
+   no identity or capture an authenticated server-side identity.
+2. **Free text is forgeable.** `--operator alice` is just a string;
+   the running uid is not.
+3. **Case-management systems already record this stuff** at a layer
+   the IR tool has no business duplicating.
+4. **One linkage is harder to drift than four.** `case_id` is the
+   single source of truth; everything else lives in the ticket.
+
+If you previously consumed `manifest.case.operator` /
+`manifest.case.reason` / `manifest.case.authority`, switch to
+`manifest.identity.*` for who, and to the ticket pointed at by
+`manifest.case.case_id` for why.
 
 ## 6. Cloud metadata
 
