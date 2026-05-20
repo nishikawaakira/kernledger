@@ -67,6 +67,48 @@ practical implication for this tool:
 Each step writes its own manifest. `package` consolidates them so the
 final tarball is self-describing without consulting earlier files.
 
+### When in doubt, collect twice
+
+`acquire` ALWAYS perturbs the host slightly — at minimum:
+
+- `lime` appears in `/proc/modules`
+- `dmesg` gains LiME's printk output
+- The kernel taint flag is set
+- A short-lived `insmod` process is created (then exits)
+
+For normal IR work these effects are known and audited via
+`acquire-manifest.json` (insmod timestamps, module SHA-256, kernel
+taint pre-check from `inspect`). One `collect` pass before `acquire`
+is enough.
+
+For higher-stakes situations — formal evidence preservation, legal
+discovery, or a host where you suspect the attacker is still active
+during acquisition — run `collect` a **second time after** `acquire`
+and diff the two snapshots. The diff lets a reviewer prove that the
+IR action did not materially disturb the system, and surfaces any
+process that died (or was started) during the dump.
+
+There is no special flag for this — just point the second `collect`
+at a sibling directory and diff the outputs:
+
+```sh
+sudo $TOOL collect --out /mnt/forensic/CASE-1234            # pre
+sudo $TOOL acquire --out /mnt/forensic/CASE-1234 \
+  --module $LIME_KO --output memory.lime --execute --rmmod
+sudo $TOOL collect --out /mnt/forensic/CASE-1234/post       # post
+
+diff -r /mnt/forensic/CASE-1234/collect \
+        /mnt/forensic/CASE-1234/post/collect
+```
+
+When the operator later runs `package --in /mnt/forensic/CASE-1234`,
+the post snapshot is included in the bundle automatically — it lives
+under the same case directory and gets hashed like everything else.
+
+The expected diff is small and uninteresting (LiME's footprint plus
+normal kernel housekeeping during the elapsed minutes). A LARGE or
+SURPRISING diff is itself a finding worth investigating.
+
 ## 4. Evidence integrity
 
 - Every regular file in the final tarball — except `manifest.json`

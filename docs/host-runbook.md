@@ -18,6 +18,76 @@
 
 ---
 
+## Which subcommand does what (and when to skip)
+
+For operators who don't live in forensic work full-time. Read this
+before deciding what to run.
+
+### One-liner per subcommand
+
+| Subcommand   | Role                                      | Always run? | Risk |
+| ------------ | ----------------------------------------- | ----------- | ---- |
+| `inspect`    | read-only health check on the target host | **yes**     | none |
+| `collect`    | snapshot of volatile state (ps / ss / logs / authorized_keys) | usually yes | low  |
+| `acquire`    | full RAM dump via LiME kernel module      | **only when needed** | **high visibility** |
+| `package`    | bundle output dir into hashed tar.gz      | when handing off | none |
+
+### Rules of thumb
+
+- **`inspect` is free** — read-only, no kernel module, no writes.
+  Run it first, no matter what. Use the output to decide whether the
+  later steps will even work (e.g. Secure Boot enabled → `acquire`
+  will fail; EDR present → SOC must be notified).
+
+- **`collect` before `acquire`**. Volatile state (running processes,
+  open sockets) changes by the second. Capture it BEFORE the slow
+  memory dump. If you only need to know "what is running and where
+  is it connecting", `collect` alone is often enough.
+
+- **`acquire` is the loud step.** Loading the LiME kernel module is
+  observable to:
+    - GuardDuty Runtime Monitoring (a finding is likely)
+    - auditd (logs `MODULE_LOAD`)
+    - any installed EDR (CrowdStrike / SentinelOne / etc.)
+    - the kernel itself (gets tainted)
+  Default to **not** running it. Reach for `acquire` only when you
+  have a reason to suspect memory-resident artifacts that `collect`
+  alone won't reveal — fileless malware, process injection, kernel
+  rootkits, or a formal evidence-preservation request from legal /
+  the SOC. Always plan with `--dry-run` first; `--execute` is the
+  explicit safety gate.
+
+- **`package` only when you're handing off.** If you're investigating
+  on the same host and won't ship the evidence anywhere, you can
+  skip it — `--out` already has hashed manifests per step.
+
+### Decision table
+
+| Situation                                                  | inspect | collect | acquire | package |
+| ---------------------------------------------------------- | :-----: | :-----: | :-----: | :-----: |
+| "Something looks odd, I want to look around"               | ✓       |         |         |         |
+| "Who's logged in, what's running, where is it talking to?" | ✓       | ✓       |         |         |
+| "Ship the volatile evidence to the SOC / forensic team"    | ✓       | ✓       |         | ✓       |
+| "Suspected memory-resident malware"                        | ✓       | ✓       | ✓       | ✓       |
+| "Formal evidence preservation requested by legal"          | ✓       | ✓       | ✓       | ✓       |
+| Secure Boot enabled + no signed LiME module                | ✓       | ✓       |  skip   | ✓       |
+
+### Default flow when in doubt
+
+```
+inspect             # always
+collect             # almost always
+acquire --dry-run   # plan only
+( notify SOC )      # human checkpoint
+acquire --execute   # only with reason + approval
+package             # only when shipping off
+```
+
+Most real-world runs end after `collect` + `package`. `acquire` is
+the exception, not the rule.
+
+---
+
 Before you touch the keyboard:
 
 - [ ] Authorization is in writing and you have the ticket id.
