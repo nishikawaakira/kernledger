@@ -20,7 +20,6 @@ type collectCmd struct {
 
 	includeEnv   bool
 	allowNonRoot bool
-	caseID       string
 }
 
 func newCollectCmd(version, commit string) *collectCmd {
@@ -34,7 +33,6 @@ func (c *collectCmd) SetFlags(fs *flag.FlagSet) {
 	c.cf.bind(fs)
 	fs.BoolVar(&c.includeEnv, "include-env", false, "include environment variables (off by default; may contain secrets)")
 	fs.BoolVar(&c.allowNonRoot, "allow-non-root", false, "skip the root precheck (some artifacts will be missing or empty)")
-	fs.StringVar(&c.caseID, "case-id", "", "case identifier (links manifest to ticket / case-management system)")
 }
 
 func (c *collectCmd) Run(ctx context.Context, _ []string) error {
@@ -60,7 +58,6 @@ func (c *collectCmd) Run(ctx context.Context, _ []string) error {
 		"out":     outDir,
 		"adapter": adapter.ID(),
 		"dry_run": c.cf.DryRun,
-		"case_id": c.caseID,
 	})
 
 	exec := executor.NewReal(30 * time.Second)
@@ -77,7 +74,6 @@ func (c *collectCmd) Run(ctx context.Context, _ []string) error {
 
 	hostname, _ := os.Hostname()
 	m := manifest.New(c.version, c.commit, adapter.ID())
-	m.Case = manifest.CaseInfo{CaseID: c.caseID}
 	m.Host = manifest.HostInfo{
 		Hostname:      hostname,
 		KernelRelease: readFile("/proc/sys/kernel/osrelease"),

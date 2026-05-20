@@ -36,9 +36,11 @@ Adapter-specific operational notes:
 ## 0. Pre-flight checklist
 
 - [ ] You have written approval to acquire memory and collect artifacts.
-      The ticket id goes into `--case-id`; the approving authority and
-      justification are recorded in the ticket itself, not in CLI
-      flags — see § "Chain of custody fields" in forensic-considerations.md.
+      Encode the ticket id in the `--out` directory name (e.g.
+      `/mnt/forensic/CASE-1234`); the approving authority and
+      justification stay in the ticket. The CLI has no operator /
+      case-id / reason / authority flags by design — see § "Chain of
+      custody fields" in forensic-considerations.md.
 - [ ] The SOC has been notified that a LiME kernel module will be loaded
       on the target instance. Acquisition is **visible** to GuardDuty
       Runtime Monitoring, auditd, and any EDR.
@@ -76,9 +78,7 @@ sudo ./al2-mem-ir inspect --json --quiet > /mnt/forensic/inspect.json
 ## 2. collect (volatile artifacts)
 
 ```sh
-sudo ./al2-mem-ir collect \
-  --out /mnt/forensic/CASE-1234 \
-  --case-id CASE-1234
+sudo ./al2-mem-ir collect --out /mnt/forensic/CASE-1234
 ```
 
 Effects:
@@ -111,7 +111,6 @@ sudo ./al2-mem-ir acquire \
   --out /mnt/forensic/CASE-1234 \
   --module /tmp/lime-$(uname -r).ko \
   --output memory.lime \
-  --case-id CASE-1234 \
   --dry-run
 ```
 
@@ -124,7 +123,6 @@ sudo ./al2-mem-ir acquire \
   --output memory.lime \
   --format lime \
   --rmmod \
-  --case-id CASE-1234 \
   --execute
 ```
 
@@ -146,14 +144,15 @@ After both `collect` and `acquire` are done, bundle:
 sudo ./al2-mem-ir package \
   --in /mnt/forensic/CASE-1234 \
   --tarball /mnt/forensic/CASE-1234.tar.gz \
-  --case-id CASE-1234 \
   --include-ec2-metadata
 ```
 
 Output:
 
 - A `tar.gz` containing every file in `--in`, prefixed with
-  `<case-id>-<timestampZ>/`.
+  `<hostname>-<timestampZ>/`. The operator's case linkage lives in the
+  outer tarball filename (e.g. `CASE-1234.tar.gz`), not in the inner
+  prefix.
 - A consolidated `manifest.json` inside the tarball that:
   - lists every file in the bundle with SHA-256 and size,
   - embeds the acquire and collect manifests,
@@ -223,8 +222,7 @@ al2-mem-ir analyze \
   --image  ./memory.lime \
   --symbols ./symbols \
   --format text \
-  --case-id CASE-1234 \
-  --out ./analysis
+  --out ./analysis-CASE-1234
 ```
 
 Runs the MVP plugin set: `linux.pslist`, `linux.pstree`, `linux.sockstat`,

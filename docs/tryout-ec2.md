@@ -271,9 +271,7 @@ Confirm:
 ### 5.2 collect (volatile artifacts)
 
 ```sh
-sudo /tmp/al2-mem-ir collect \
-  --out /mnt/forensic/$CASE_ID \
-  --case-id $CASE_ID
+sudo /tmp/al2-mem-ir collect --out /mnt/forensic/$CASE_ID
 ```
 
 Spot-check the result:
@@ -296,7 +294,6 @@ sudo /tmp/al2-mem-ir acquire \
   --module "$LIME_KO" \
   --output memory.lime \
   --format lime \
-  --case-id $CASE_ID \
   --dry-run
 
 cat /mnt/forensic/$CASE_ID/acquire-manifest.json | jq '.acquisition'
@@ -314,7 +311,6 @@ sudo /tmp/al2-mem-ir acquire \
   --output memory.lime \
   --format lime \
   --rmmod \
-  --case-id $CASE_ID \
   --execute
 
 ls -la /mnt/forensic/$CASE_ID/memory.lime
@@ -362,7 +358,6 @@ ls -la /mnt/forensic/$CASE_ID/symbols/linux/
 sudo /tmp/al2-mem-ir package \
   --in /mnt/forensic/$CASE_ID \
   --tarball /mnt/forensic/$CASE_ID.tar.gz \
-  --case-id $CASE_ID \
   --include-ec2-metadata
 
 ls -la /mnt/forensic/$CASE_ID.tar.gz
@@ -442,8 +437,7 @@ is the layout Volatility looks for.
   --image $(pwd)/memory.lime \
   --symbols $(pwd)/symbols \
   --format text \
-  --out ./analysis \
-  --case-id $CASE_ID
+  --out ./analysis-$CASE_ID
 ```
 
 > If you used the macOS arm64 build of al2-mem-ir, adjust the path. The

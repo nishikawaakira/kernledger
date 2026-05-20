@@ -19,22 +19,25 @@ import (
 // SchemaVersion bumps when fields are removed or semantically changed.
 // Additive changes do not require a bump.
 //
-// 2.0.0 (breaking, 2026-05): Drop CaseInfo.Operator / Reason / Authority.
-//   Real IR tooling does not collect self-declared operator identity
-//   via CLI flags — that data is recorded by the case-management
-//   system (Linear, Jira, TheHive, etc.) at the authenticated layer,
-//   and reproducing it as free text in the manifest just adds
-//   surface area for forgery. We now record OS-level identity
-//   (effective uid + loginuid + usernames) automatically via the new
-//   Identity struct. CaseID stays — it is the single linkage to the
-//   external ticket.
-const SchemaVersion = "2.0.0"
+// 2.0.0 (2026-05): Dropped CaseInfo.Operator / Reason / Authority. Added
+//   Identity (effective uid + /proc/self/loginuid) auto-capture.
+//
+// 3.0.0 (2026-05): Dropped CaseInfo entirely. Operators link bundles to
+//   external tickets via the filename / directory name they choose
+//   (`--out` and `--tarball` arguments), not via a manifest field.
+//   Rationale: --case-id was a free-text self-declaration with the
+//   same forgeability concerns as the operator/reason/authority
+//   fields removed in 2.0.0, and it duplicates information that is
+//   already encoded by the operator at the filesystem layer. Removing
+//   it shrinks the operator-supplied CLI surface to behavioral flags
+//   only (--dry-run, --execute, --include-env, etc.) — there are no
+//   identity-style fields left to forge or to forget to fill in.
+const SchemaVersion = "3.0.0"
 
 // Manifest is the top-level evidence record.
 type Manifest struct {
 	SchemaVersion string         `json:"schema_version"`
 	Tool          ToolInfo       `json:"tool"`
-	Case          CaseInfo       `json:"case"`
 	Identity      *Identity      `json:"identity,omitempty"`
 	Host          HostInfo       `json:"host"`
 	Cloud         *CloudInfo     `json:"cloud,omitempty"`
@@ -54,20 +57,12 @@ type ToolInfo struct {
 	Distro  string `json:"distro_adapter"`
 }
 
-// CaseInfo carries the single operator-supplied chain-of-custody
-// field: a stable identifier that links the manifest to the external
-// case-management system (ticket id / incident id).
-//
-// We deliberately do NOT store operator name, reason, or approving
-// authority here. Those are properties of the *case*, recorded once in
-// Linear / Jira / TheHive / etc. by an authenticated user, and looked
-// up via CaseID. Reproducing them here as free text would just give
-// reviewers a self-declared blob they have no way to verify.
-//
-// See manifest.Identity for the authenticated-by-the-OS counterpart.
-type CaseInfo struct {
-	CaseID string `json:"case_id,omitempty"`
-}
+// CaseInfo previously held a free-text case_id linking the manifest
+// to an external ticket. Removed in schema 3.0.0 — operators express
+// the linkage via the names they choose for --out / --tarball
+// instead. The type is intentionally not retained as a deprecated
+// stub: a manifest with no case_id field is unambiguous, and the
+// loader will simply ignore stale fields if a 2.x manifest is read.
 
 // HostInfo describes the target system.
 type HostInfo struct {

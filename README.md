@@ -56,7 +56,7 @@ referenced from a single JSON manifest.
 | Writes to the target host            | Restricted to `--out`. Operator chooses (e.g. a mounted forensic volume).          |
 | Root requirement                     | Enforced. Override only with `--allow-non-root` (creates evidence gaps).           |
 | Audit trail                          | Every external command + outcome → NDJSON `audit.log` inside `--out`.              |
-| Chain of custody                     | `--case-id` links to the external ticket. OS identity (uid + `/proc/self/loginuid`) auto-captured. |
+| Chain of custody                     | OS identity (uid + `/proc/self/loginuid`) auto-captured. Case linkage is expressed by the operator-chosen `--out` / `--tarball` filenames. |
 | Cloud metadata access                | Off by default. Requires `--include-ec2-metadata`. Always IMDSv2.                  |
 | Environment variables in collection  | Off by default (`--include-env` to opt in; may contain secrets).                   |
 | EDR / GuardDuty visibility           | Surfaced in `inspect` as a warning; never circumvented.                            |
@@ -71,17 +71,16 @@ make build
 # On the target host:
 sudo ./al2-mem-ir inspect
 
-# Volatile collection:
-sudo ./al2-mem-ir collect \
-  --out /mnt/forensic/CASE-1234 \
-  --case-id CASE-1234
+# Volatile collection. Encode the case id in the directory name —
+# that's the only operator-supplied case linkage.
+sudo ./al2-mem-ir collect --out /mnt/forensic/CASE-1234
 
 # Plan memory acquisition (no insmod yet):
 sudo ./al2-mem-ir acquire \
   --out /mnt/forensic/CASE-1234 \
   --module /tmp/lime-$(uname -r).ko \
   --output memory.lime \
-  --case-id CASE-1234 --dry-run
+  --dry-run
 
 # Actually run insmod (requires --execute on top of everything above):
 sudo ./al2-mem-ir acquire \
@@ -89,14 +88,12 @@ sudo ./al2-mem-ir acquire \
   --module /tmp/lime-$(uname -r).ko \
   --output memory.lime \
   --rmmod \
-  --case-id CASE-1234 \
   --execute
 
-# Bundle everything:
+# Bundle everything. The tarball name carries the case id forward.
 sudo ./al2-mem-ir package \
   --in /mnt/forensic/CASE-1234 \
   --tarball /mnt/forensic/CASE-1234.tar.gz \
-  --case-id CASE-1234 \
   --include-ec2-metadata
 
 # Or pin cloud metadata fields explicitly (useful when IMDS is
@@ -104,17 +101,17 @@ sudo ./al2-mem-ir package \
 sudo ./al2-mem-ir package \
   --in /mnt/forensic/CASE-1234 \
   --tarball /mnt/forensic/CASE-1234.tar.gz \
-  --case-id CASE-1234 \
   --instance-id i-0abcdef1234567890 \
   --region ap-northeast-1 \
   --account-id 123456789012
 ```
 
-`--case-id` is the **only** operator-supplied chain-of-custody field.
-It exists to link the manifest back to your ticket / case-management
-system. Operator identity is auto-captured from the kernel
-(`os.Geteuid()` + `/proc/self/loginuid`) into the manifest's
-`identity` section — see `forensic-considerations.md` § 5.
+There is **no `--case-id` / `--operator` / `--reason` / `--authority`
+flag**. Case linkage is whatever filename / directory name the
+operator chooses for `--out` and `--tarball`. Operator identity is
+auto-captured from the kernel (`os.Geteuid()` + `/proc/self/loginuid`)
+into the manifest's `identity` section — see
+`forensic-considerations.md` § 5.
 
 `package` prints the SHA-256 of the produced tarball; record it in your
 ticket. The in-memory manifest is byte-identical to the `manifest.json`
@@ -135,7 +132,6 @@ al2-mem-ir analyze \
   --image  ./memory.lime \
   --symbols ./symbols \
   --format text \
-  --case-id CASE-1234 \
   --out ./analysis
 ```
 

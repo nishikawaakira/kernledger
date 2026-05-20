@@ -34,7 +34,6 @@ func TestBuild_HashesAndTars(t *testing.T) {
 	res, err := Build(context.Background(), log, Options{
 		InDir:       in,
 		OutPath:     out,
-		CaseID:      "C-TEST",
 		ToolVersion: "0.0.0",
 		ToolCommit:  "test",
 		Adapter:     nil,
@@ -111,7 +110,6 @@ func TestBuild_ManifestInTarballMatchesReturned(t *testing.T) {
 	res, err := Build(context.Background(), log, Options{
 		InDir:       in,
 		OutPath:     out,
-		CaseID:      "C-EQ",
 		ToolVersion: "0.0.0",
 		ToolCommit:  "test",
 		OSInfo:      distro.OSInfo{ID: "amzn", VersionID: "2"},

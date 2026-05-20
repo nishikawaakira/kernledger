@@ -1,7 +1,9 @@
 package manifest
 
 import (
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -49,7 +51,6 @@ func TestAnalysisSummary(t *testing.T) {
 
 func TestRoundTrip(t *testing.T) {
 	m := New("0.1.0", "abc1234", "amazonlinux2")
-	m.Case = CaseInfo{CaseID: "C-1"}
 	m.Artifacts = []Artifact{
 		{Path: "memory.lime", SHA256: "deadbeef", Size: 42, Kind: "memory_image"},
 	}
@@ -66,9 +67,6 @@ func TestRoundTrip(t *testing.T) {
 	if got.SchemaVersion != SchemaVersion {
 		t.Errorf("schema version = %s", got.SchemaVersion)
 	}
-	if got.Case.CaseID != "C-1" {
-		t.Errorf("case = %+v", got.Case)
-	}
 	if len(got.Artifacts) != 1 || got.Artifacts[0].SHA256 != "deadbeef" {
 		t.Errorf("artifacts = %+v", got.Artifacts)
 	}
@@ -76,10 +74,35 @@ func TestRoundTrip(t *testing.T) {
 		t.Errorf("tool = %+v", got.Tool)
 	}
 	// New() must auto-capture Identity. It is OS-dependent so we only
-	// check that the structure exists and EffectiveUID got assigned
-	// (which is always true; os.Geteuid() always returns a value).
+	// check that the structure exists.
 	if got.Identity == nil {
 		t.Error("Identity not captured by New()")
+	}
+}
+
+// TestManifest_NoCaseField is the regression test for schema 3.0.0:
+// the manifest must NOT serialize a "case" field anywhere. If a future
+// change re-adds CaseInfo without bumping schema, this test catches it.
+func TestManifest_NoCaseField(t *testing.T) {
+	m := New("0.1.0", "abc1234", "amazonlinux2")
+	m.Artifacts = []Artifact{
+		{Path: "x", SHA256: "y", Size: 1, Kind: "other"},
+	}
+	dir := t.TempDir()
+	path := filepath.Join(dir, "manifest.json")
+	if err := m.Save(path); err != nil {
+		t.Fatal(err)
+	}
+	b, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// JSON-level check: the literal "case" field must be absent.
+	if strings.Contains(string(b), `"case"`) {
+		t.Errorf("manifest must not contain a 'case' field in schema 3.0.0; got:\n%s", b)
+	}
+	if strings.Contains(string(b), `"case_id"`) {
+		t.Errorf("manifest must not contain a 'case_id' field; got:\n%s", b)
 	}
 }
 

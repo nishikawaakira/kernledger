@@ -36,19 +36,22 @@ preparation steps (instance launch, LiME build, binary staging).
 
 ## Variables
 
-Thread the same case id through every command so the manifests link up.
+Encode the ticket id in the `--out` directory and the `--tarball`
+filename — those are the only places the case linkage appears. The
+CLI has no `--case-id` / `--operator` / `--reason` / `--authority`
+flags by design.
 
 ```sh
-export CASE_ID=CASE-1234         # ticket id — the only operator-supplied chain-of-custody field
+export CASE_ID=CASE-1234         # ticket id; used only to build path names below
 export OUT=/mnt/forensic/$CASE_ID
 export TOOL=/tmp/al2-mem-ir
 export LIME_KO=/tmp/lime-$(uname -r).ko
 ```
 
-Operator identity is not entered as a flag — the manifest records the
-effective uid and `/proc/self/loginuid` automatically. Approving
-authority and incident justification stay in the ticket (`$CASE_ID`),
-not in CLI flags. See `forensic-considerations.md` § 5.
+Operator identity is captured automatically by the kernel
+(`os.Geteuid()` + `/proc/self/loginuid`) into the manifest's
+`identity` section. Approving authority and incident justification
+stay in the ticket. See `forensic-considerations.md` § 5.
 
 ## 1. inspect (read-only, run first)
 
@@ -66,9 +69,7 @@ Check:
 ## 2. collect (volatile artifacts)
 
 ```sh
-sudo $TOOL collect \
-  --out  $OUT \
-  --case-id $CASE_ID
+sudo $TOOL collect --out $OUT
 ```
 
 Use `--include-env` only if you've decided that environment variables
@@ -82,7 +83,6 @@ sudo $TOOL acquire \
   --module $LIME_KO \
   --output memory.lime \
   --format lime \
-  --case-id $CASE_ID \
   --dry-run
 
 jq '.acquisition' $OUT/acquire-manifest.json
@@ -100,7 +100,6 @@ sudo $TOOL acquire \
   --output memory.lime \
   --format lime \
   --rmmod \
-  --case-id $CASE_ID \
   --execute
 
 sha256sum $OUT/memory.lime
@@ -119,7 +118,6 @@ If `insmod` fails, the tool captures `dmesg -T` to
 sudo $TOOL package \
   --in $OUT \
   --tarball /mnt/forensic/$CASE_ID.tar.gz \
-  --case-id $CASE_ID \
   --include-ec2-metadata
 ```
 
@@ -131,7 +129,6 @@ runbook values regardless of host state):
 
 ```sh
 sudo $TOOL package --in $OUT --tarball /mnt/forensic/$CASE_ID.tar.gz \
-  --case-id $CASE_ID \
   --instance-id i-0abcdef1234567890 \
   --region ap-northeast-1 \
   --account-id 123456789012

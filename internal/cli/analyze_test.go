@@ -17,7 +17,6 @@ func TestSaveAnalyzeManifest_WritesFile(t *testing.T) {
 	c := &analyzeCmd{
 		version: "0.0.0",
 		commit:  "test",
-		caseID:  "C-A1",
 	}
 	a := &manifest.Analysis{
 		Volatility:  "/opt/vol/vol.py",
@@ -56,10 +55,7 @@ func TestSaveAnalyzeManifest_WritesFile(t *testing.T) {
 	if len(pr.Args) != 5 || pr.Args[4] != "linux.pslist" {
 		t.Errorf("args not preserved: %v", pr.Args)
 	}
-	if loaded.Case.CaseID != "C-A1" {
-		t.Errorf("case info lost: %+v", loaded.Case)
-	}
-	// Identity must be auto-captured (no operator flag any more).
+	// Identity must be auto-captured (no operator/case flag any more).
 	if loaded.Identity == nil {
 		t.Error("Identity not captured into analyze manifest")
 	}
@@ -120,7 +116,6 @@ func TestAnalyzeCmd_PartialFailure_PolicyLockdown(t *testing.T) {
 		"--symbols", syms,
 		"--format", "text",
 		"--plugins", "linux.pslist,linux.envars,linux.bash",
-		"--case-id", "C-PARTIAL",
 		"--quiet",
 	}
 	if err := fs.Parse(args); err != nil {

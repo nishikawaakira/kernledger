@@ -51,7 +51,6 @@ import (
 type Options struct {
 	InDir              string
 	OutPath            string // .tar.gz file to create
-	CaseID             string
 	IncludeEC2Metadata bool
 	// Operator-provided overrides for cloud fields. When non-empty,
 	// these take precedence over IMDS values (or substitute for them
@@ -90,7 +89,6 @@ func Build(ctx context.Context, log *audit.Logger, opts Options) (*BuildResult, 
 	}
 
 	m := manifest.New(opts.ToolVersion, opts.ToolCommit, adapterID(opts.Adapter))
-	m.Case = manifest.CaseInfo{CaseID: opts.CaseID}
 	hostname, _ := os.Hostname()
 	m.Host = manifest.HostInfo{
 		Hostname:      hostname,
@@ -166,7 +164,7 @@ func Build(ctx context.Context, log *audit.Logger, opts Options) (*BuildResult, 
 		return nil, err
 	}
 
-	if err := writeTarGz(opts.InDir, opts.OutPath, opts.CaseID); err != nil {
+	if err := writeTarGz(opts.InDir, opts.OutPath); err != nil {
 		return nil, err
 	}
 
@@ -320,13 +318,15 @@ func extractField(doc, field string) string {
 	return rest[:k]
 }
 
-func writeTarGz(srcDir, dst, caseID string) error {
-	prefix := caseID
-	if prefix == "" {
-		h, _ := os.Hostname()
-		prefix = h
+func writeTarGz(srcDir, dst string) error {
+	// In-tarball directory prefix: hostname + UTC timestamp. The
+	// operator's case linkage is expressed via the filename of `dst`
+	// itself (and the name of `srcDir`), not here.
+	hostname, _ := os.Hostname()
+	if hostname == "" {
+		hostname = "host"
 	}
-	prefix += "-" + time.Now().UTC().Format("20060102T150405Z")
+	prefix := hostname + "-" + time.Now().UTC().Format("20060102T150405Z")
 
 	out, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
 	if err != nil {

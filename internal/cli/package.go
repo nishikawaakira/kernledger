@@ -15,7 +15,6 @@ type packageCmd struct {
 
 	inDir              string
 	outPath            string
-	caseID             string
 	includeEC2Metadata bool
 	instanceID         string
 	region             string
@@ -33,7 +32,6 @@ func (c *packageCmd) SetFlags(fs *flag.FlagSet) {
 	c.cf.bind(fs)
 	fs.StringVar(&c.inDir, "in", "", "directory previously populated by acquire/collect (required)")
 	fs.StringVar(&c.outPath, "tarball", "", "output .tar.gz path (required)")
-	fs.StringVar(&c.caseID, "case-id", "", "case identifier (links manifest to ticket / case-management system)")
 	fs.BoolVar(&c.includeEC2Metadata, "include-ec2-metadata", false, "fetch IMDSv2 metadata (off by default)")
 	// Explicit metadata overrides. These take precedence over any
 	// values pulled from IMDS and let the operator pin chain-of-custody
@@ -62,7 +60,6 @@ func (c *packageCmd) Run(ctx context.Context, _ []string) error {
 	res, err := pkgbuild.Build(ctx, log, pkgbuild.Options{
 		InDir:              c.inDir,
 		OutPath:            c.outPath,
-		CaseID:             c.caseID,
 		IncludeEC2Metadata: c.includeEC2Metadata,
 		InstanceIDOverride: c.instanceID,
 		RegionOverride:     c.region,

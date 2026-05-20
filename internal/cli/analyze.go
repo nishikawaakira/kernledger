@@ -25,7 +25,6 @@ type analyzeCmd struct {
 	format        string
 	plugins       string
 	pluginTimeout time.Duration
-	caseID        string
 }
 
 func newAnalyzeCmd(version, commit string) *analyzeCmd {
@@ -43,7 +42,6 @@ func (c *analyzeCmd) SetFlags(fs *flag.FlagSet) {
 	fs.StringVar(&c.format, "format", "text", "output format: text|json")
 	fs.StringVar(&c.plugins, "plugins", "", "comma-separated plugin override (default = MVP set)")
 	fs.DurationVar(&c.pluginTimeout, "plugin-timeout", 30*time.Minute, "per-plugin timeout")
-	fs.StringVar(&c.caseID, "case-id", "", "case identifier (links manifest to ticket / case-management system)")
 }
 
 // Exit code policy for `analyze` (single source of truth):
@@ -144,7 +142,6 @@ func (c *analyzeCmd) Run(ctx context.Context, _ []string) error {
 // what the operator should reference in their report.
 func saveAnalyzeManifestPath(c *analyzeCmd, outDir string, a *manifest.Analysis) (string, error) {
 	m := manifest.New(c.version, c.commit, "n/a-analyst-side")
-	m.Case = manifest.CaseInfo{CaseID: c.caseID}
 	hostname, _ := os.Hostname()
 	m.Host = manifest.HostInfo{
 		Hostname: hostname,

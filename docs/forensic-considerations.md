@@ -108,20 +108,10 @@ unit tests (`TestBuild_ManifestInTarballMatchesReturned`).
 
 ## 5. Chain of custody fields
 
-The manifest splits "who / why" data into two layers, by design.
+The CLI has **no** "who / why" flags at all. The manifest carries
+identity at a single layer, and case linkage is carried by file paths.
 
-### Layer 1: case linkage (operator-supplied, single field)
-
-| Field      | Purpose                                                              |
-| ---------- | -------------------------------------------------------------------- |
-| `case_id`  | External ticket id (Linear / Jira / SecHub finding / TheHive case). |
-
-That is the **only** operator-typed chain-of-custody field. The
-acquisition is anchored to a ticket; the ticket is anchored to a
-person, an approval, and a justification — by the ticketing system,
-not by free-text CLI flags.
-
-### Layer 2: process identity (auto-captured, kernel-attested)
+### Identity (auto-captured, kernel-attested)
 
 | Field                          | Source                              |
 | ------------------------------ | ----------------------------------- |
@@ -137,25 +127,47 @@ the real human user, not just `0`. `login_uid = -1` (or the sentinel
 `4294967295`) means the kernel has no session record — typical on
 macOS, on containers without audit support, or for boot-time invocations.
 
-### Why we dropped `--operator`, `--reason`, `--authority`
+### Case linkage (filesystem, not manifest)
 
-Earlier MVPs accepted those as free-text CLI flags. We removed them
-because:
+The operator expresses case linkage by **what they name `--out` and
+`--tarball`**. For example:
 
-1. **No real IR tool we surveyed has them** — LiME, AVML, fmem,
+- `--out /mnt/forensic/CASE-1234` puts collect/acquire artifacts
+  under a path that includes the ticket id.
+- `--tarball /mnt/forensic/CASE-1234.tar.gz` ships the bundle with
+  the ticket id in its filename.
+
+That's the entire mechanism. No `--case-id` flag, no `case_id` field
+in the manifest. Reviewers look at the filename / S3 prefix / upload
+metadata to find the ticket; everything inside the bundle is content,
+not labels.
+
+### Why no `--case-id` / `--operator` / `--reason` / `--authority`
+
+Earlier MVPs accepted these as free-text CLI flags. We removed them
+in 2.0.0 (operator/reason/authority) and 3.0.0 (case-id) because:
+
+1. **No real IR tool we surveyed has them.** LiME, AVML, fmem,
    Volatility, The Sleuth Kit, GRR, and Velociraptor either capture
    no identity or capture an authenticated server-side identity.
 2. **Free text is forgeable.** `--operator alice` is just a string;
-   the running uid is not.
+   the running uid is not. The same applied to `case-id`.
 3. **Case-management systems already record this stuff** at a layer
    the IR tool has no business duplicating.
-4. **One linkage is harder to drift than four.** `case_id` is the
-   single source of truth; everything else lives in the ticket.
+4. **One mechanism is harder to drift than five.** The operator-chosen
+   file path is the single source of truth for "which case"; the
+   ticket pointed at by that path is the single source of truth for
+   "who / why / when approved".
+5. **Less CLI surface = fewer ways to misuse.** A flag that exists is
+   a flag operators must remember to fill in correctly, and that
+   reviewers must remember to spot-check. None of the removed flags
+   were enforced or validated — they were polite suggestions.
 
-If you previously consumed `manifest.case.operator` /
-`manifest.case.reason` / `manifest.case.authority`, switch to
-`manifest.identity.*` for who, and to the ticket pointed at by
-`manifest.case.case_id` for why.
+If you previously consumed `manifest.case.case_id` (schema ≤ 2.x),
+read the ticket id from the bundle's filename or its S3 prefix /
+upload metadata instead. If you previously consumed
+`manifest.case.operator` / `.reason` / `.authority` (schema 1.x),
+switch to `manifest.identity.*` for who, and to the ticket for why.
 
 ## 6. Cloud metadata
 
