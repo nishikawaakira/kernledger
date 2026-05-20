@@ -187,13 +187,13 @@ func readFromTar(t *testing.T, outPath, suffix string) []byte {
 	}
 }
 
-// TestBuild_CloudOverridesWinOverIMDS verifies that explicit
-// --instance-id/--region/--account-id flags take precedence over
-// adapter-provided metadata, and that IMDS is not consulted when
-// --include-ec2-metadata is false.
-func TestBuild_CloudOverridesWinOverIMDS(t *testing.T) {
+// TestBuild_CloudOnlyFromIMDS locks in the post-3.x policy: cloud info
+// is populated ONLY when --include-ec2-metadata is set, and ONLY from
+// the adapter's cloud provider. There are no operator-supplied override
+// flags; an operator who needs AWS context with IMDS disabled must put
+// it in the bundle's filename instead.
+func TestBuild_CloudOnlyFromIMDS(t *testing.T) {
 	in := t.TempDir()
-	out := filepath.Join(t.TempDir(), "b.tar.gz")
 	must(t, os.WriteFile(filepath.Join(in, "marker"), []byte("x"), 0o600))
 
 	log, err := audit.NewFileLogger("", false)
@@ -202,11 +202,11 @@ func TestBuild_CloudOverridesWinOverIMDS(t *testing.T) {
 	}
 	defer log.Close()
 
-	called := false
+	providerCalled := 0
 	adapter := &fakeAdapter{name: "fake", provider: &fakeProvider{
 		name: "fake-cloud",
 		fetch: func() (map[string]string, error) {
-			called = true
+			providerCalled++
 			return map[string]string{
 				"instance_id": "i-FROM-IMDS",
 				"region":      "us-east-1",
@@ -214,52 +214,48 @@ func TestBuild_CloudOverridesWinOverIMDS(t *testing.T) {
 		},
 	}}
 
-	// 1. Without --include-ec2-metadata, the provider must NOT be called,
-	//    and overrides must still land in manifest.Cloud.
-	res, err := Build(context.Background(), log, Options{
-		InDir:              in,
-		OutPath:            out,
-		InstanceIDOverride: "i-OVERRIDE",
-		RegionOverride:     "ap-northeast-1",
-		AccountIDOverride:  "999988887777",
-		Adapter:            adapter,
+	// Case 1: IncludeEC2Metadata=false → provider untouched, Cloud nil.
+	out1 := filepath.Join(t.TempDir(), "b1.tar.gz")
+	res1, err := Build(context.Background(), log, Options{
+		InDir:   in,
+		OutPath: out1,
+		Adapter: adapter,
 	})
 	if err != nil {
-		t.Fatalf("build: %v", err)
+		t.Fatalf("build 1: %v", err)
 	}
-	if called {
-		t.Error("provider was called despite IncludeEC2Metadata=false")
+	if providerCalled != 0 {
+		t.Errorf("provider called %d time(s) without IncludeEC2Metadata", providerCalled)
 	}
-	if res.Manifest.Cloud == nil {
-		t.Fatal("expected Cloud populated from overrides")
-	}
-	if res.Manifest.Cloud.InstanceID != "i-OVERRIDE" ||
-		res.Manifest.Cloud.Region != "ap-northeast-1" ||
-		res.Manifest.Cloud.AccountID != "999988887777" {
-		t.Errorf("overrides not applied: %+v", res.Manifest.Cloud)
+	if res1.Manifest.Cloud != nil {
+		t.Errorf("Cloud must be nil when IMDS off; got %+v", res1.Manifest.Cloud)
 	}
 
-	// 2. With --include-ec2-metadata AND overrides, overrides must win.
+	// Case 2: IncludeEC2Metadata=true → provider called, Cloud populated
+	// purely from provider data.
 	out2 := filepath.Join(t.TempDir(), "b2.tar.gz")
 	res2, err := Build(context.Background(), log, Options{
 		InDir:              in,
 		OutPath:            out2,
 		IncludeEC2Metadata: true,
-		InstanceIDOverride: "i-OVERRIDE",
 		Adapter:            adapter,
 	})
 	if err != nil {
 		t.Fatalf("build 2: %v", err)
 	}
-	if !called {
-		t.Error("provider should have been called when IncludeEC2Metadata=true")
+	if providerCalled != 1 {
+		t.Errorf("provider should have been called exactly once; was %d", providerCalled)
 	}
-	if res2.Manifest.Cloud.InstanceID != "i-OVERRIDE" {
-		t.Errorf("instance-id override lost to IMDS: %+v", res2.Manifest.Cloud)
+	if res2.Manifest.Cloud == nil {
+		t.Fatal("expected Cloud populated from IMDS")
 	}
-	// region was not overridden, so it should fall through to IMDS value.
-	if res2.Manifest.Cloud.Region != "us-east-1" {
-		t.Errorf("expected region from IMDS, got %s", res2.Manifest.Cloud.Region)
+	if res2.Manifest.Cloud.InstanceID != "i-FROM-IMDS" || res2.Manifest.Cloud.Region != "us-east-1" {
+		t.Errorf("IMDS values not propagated: %+v", res2.Manifest.Cloud)
+	}
+	// Provider name must come from the adapter, NOT from "operator-supplied"
+	// (that label existed in schema ≤ 3.0.0 and is gone now).
+	if res2.Manifest.Cloud.Provider != "fake-cloud" {
+		t.Errorf("Cloud.Provider = %q; want fake-cloud", res2.Manifest.Cloud.Provider)
 	}
 }
 

@@ -171,28 +171,15 @@ switch to `manifest.identity.*` for who, and to the ticket for why.
 
 ## 6. Cloud metadata
 
-`package` populates `manifest.cloud` from two possible sources, in this
-order of precedence:
+`package` has exactly one source of cloud metadata: **IMDSv2**, gated
+by `--include-ec2-metadata`.
 
-1. **Explicit operator overrides** via flags:
-   - `--instance-id`
-   - `--region`
-   - `--account-id`
-
-   These always win. Use them when IMDS is disabled on the target,
-   when `package` is being run on a workstation rather than the target
-   itself, or when you need to pin runbook values regardless of host
-   state.
-
-2. **IMDSv2**, only when `--include-ec2-metadata` is set. The lookup is
-   routed through the active distro adapter's `CloudProviders()`, so
-   non-AWS distros can substitute their own provider (or none) without
-   changes to `package`. The current AL2 adapter exposes an IMDSv2-only
-   client; the IMDSv1 fallback is not implemented.
-
-When `--include-ec2-metadata` is NOT set, `al2-mem-ir` makes no
-HTTP call to `169.254.169.254`. This is verified by unit tests
-(`TestBuild_CloudOverridesWinOverIMDS`).
+- With the flag, the lookup is routed through the active distro
+  adapter's `CloudProviders()`. The shipped AL2 / AL2023 / Ubuntu
+  adapters all expose an IMDSv2-only client (no IMDSv1 fallback).
+- Without the flag, `al2-mem-ir` makes no HTTP call to
+  `169.254.169.254` and `manifest.cloud` is absent from the JSON.
+  This is verified by `TestBuild_CloudOnlyFromIMDS`.
 
 Fields collected from IMDS when enabled:
 
@@ -201,14 +188,33 @@ Fields collected from IMDS when enabled:
 - placement/region
 - placement/availability-zone
 - ami-id
-- accountId (extracted from the instance-identity document)
+- accountId (extracted from the AWS-signed instance-identity document)
 
-Why this is opt-in:
+### Why no operator-supplied override flags
+
+Schema ≤ 3.0.0 had `--instance-id` / `--region` / `--account-id`
+flags as a fallback for hosts where IMDS was disabled. They were
+removed for the same reason `--operator` and `--case-id` were:
+
+1. **Free text is forgeable.** Operator-typed cloud identifiers add
+   no integrity above what the operator could write in the ticket.
+2. **They duplicated IMDS.** When IMDS works, the signed
+   instance-identity document is authoritative; the override flags
+   were redundant.
+3. **AWS context recovery already had a path** — the bundle's
+   filename, its S3 upload metadata, or the linked ticket — that
+   doesn't pretend to be authenticated when it isn't.
+
+If IMDS is disabled on your target, `manifest.cloud` is simply absent.
+That is accurate. Recover the AWS asset id from whichever channel
+carries your case linkage.
+
+### Why IMDS is opt-in
 
 - The HTTP call to `169.254.169.254` is observable in network
   monitoring; some shops want to track IR tooling that talks to IMDS.
-- The instance-identity document is signed by AWS and useful for legal
-  attestation. If you collect it, treat it as evidence.
+- The instance-identity document is signed by AWS and useful for
+  legal attestation. If you collect it, treat it as evidence.
 
 ## 7. What writes happen on the target
 

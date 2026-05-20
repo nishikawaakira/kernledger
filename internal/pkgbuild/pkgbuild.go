@@ -52,12 +52,6 @@ type Options struct {
 	InDir              string
 	OutPath            string // .tar.gz file to create
 	IncludeEC2Metadata bool
-	// Operator-provided overrides for cloud fields. When non-empty,
-	// these take precedence over IMDS values (or substitute for them
-	// when --include-ec2-metadata is not set).
-	InstanceIDOverride string
-	RegionOverride     string
-	AccountIDOverride  string
 	ToolVersion        string
 	ToolCommit         string
 	Adapter            distro.Adapter
@@ -187,54 +181,39 @@ func Build(ctx context.Context, log *audit.Logger, opts Options) (*BuildResult, 
 	}, nil
 }
 
-// buildCloudInfo applies the explicit overrides first, then (if
-// requested) fills missing fields from the adapter's first cloud
-// provider. Returns nil if no information is available.
+// buildCloudInfo returns the manifest's cloud section.
+//
+// There is only one source: IMDSv2 (or whatever the active distro
+// adapter exposes via CloudProviders()), gated by IncludeEC2Metadata.
+// We do NOT accept operator-supplied overrides here — that was the
+// behavior in schema ≤ 3.0.0, removed because operator-typed strings
+// were forgeable and just duplicated what IMDS provides authentically.
+//
+// If the flag is off, or IMDS is unreachable, or the provider returns
+// no data, this returns nil — manifest.cloud is then absent from the
+// JSON output. The analyst recovers the AWS context from the bundle's
+// filename / S3 prefix / ticket instead.
 func buildCloudInfo(ctx context.Context, log *audit.Logger, opts Options) *manifest.CloudInfo {
-	c := &manifest.CloudInfo{
-		InstanceID: opts.InstanceIDOverride,
-		Region:     opts.RegionOverride,
-		AccountID:  opts.AccountIDOverride,
+	if !opts.IncludeEC2Metadata {
+		return nil
 	}
-
-	if opts.IncludeEC2Metadata {
-		md := fetchCloudMetadata(ctx, log, opts.Adapter)
-		if md != nil {
-			if c.Provider == "" {
-				c.Provider = md["_provider"]
-			}
-			if c.InstanceID == "" {
-				c.InstanceID = md["instance_id"]
-			}
-			if c.InstanceType == "" {
-				c.InstanceType = md["instance_type"]
-			}
-			if c.Region == "" {
-				c.Region = md["region"]
-			}
-			if c.AvailZone == "" {
-				c.AvailZone = md["availability_zone"]
-			}
-			if c.AMIID == "" {
-				c.AMIID = md["ami_id"]
-			}
-			if c.AccountID == "" {
-				if doc := md["account_id"]; doc != "" {
-					if acc := extractField(doc, "accountId"); acc != "" {
-						c.AccountID = acc
-					}
-				}
-			}
+	md := fetchCloudMetadata(ctx, log, opts.Adapter)
+	if md == nil {
+		return nil
+	}
+	c := &manifest.CloudInfo{
+		Provider:     md["_provider"],
+		InstanceID:   md["instance_id"],
+		InstanceType: md["instance_type"],
+		Region:       md["region"],
+		AvailZone:    md["availability_zone"],
+		AMIID:        md["ami_id"],
+	}
+	if doc := md["account_id"]; doc != "" {
+		if acc := extractField(doc, "accountId"); acc != "" {
+			c.AccountID = acc
 		}
 	}
-
-	// If overrides supplied a value but provider name was never set,
-	// label the source so reviewers can tell where it came from.
-	if c.Provider == "" && (c.InstanceID != "" || c.Region != "" || c.AccountID != "") {
-		c.Provider = "operator-supplied"
-	}
-
-	// Return nil rather than an empty struct so the JSON stays clean.
 	if *c == (manifest.CloudInfo{}) {
 		return nil
 	}

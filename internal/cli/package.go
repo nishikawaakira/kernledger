@@ -16,9 +16,6 @@ type packageCmd struct {
 	inDir              string
 	outPath            string
 	includeEC2Metadata bool
-	instanceID         string
-	region             string
-	accountID          string
 }
 
 func newPackageCmd(version, commit string) *packageCmd {
@@ -32,14 +29,7 @@ func (c *packageCmd) SetFlags(fs *flag.FlagSet) {
 	c.cf.bind(fs)
 	fs.StringVar(&c.inDir, "in", "", "directory previously populated by acquire/collect (required)")
 	fs.StringVar(&c.outPath, "tarball", "", "output .tar.gz path (required)")
-	fs.BoolVar(&c.includeEC2Metadata, "include-ec2-metadata", false, "fetch IMDSv2 metadata (off by default)")
-	// Explicit metadata overrides. These take precedence over any
-	// values pulled from IMDS and let the operator pin chain-of-custody
-	// fields when running outside EC2 (e.g. forensic copy on a
-	// workstation, or instance whose IMDS has been disabled).
-	fs.StringVar(&c.instanceID, "instance-id", "", "explicit EC2 instance id (overrides IMDS)")
-	fs.StringVar(&c.region, "region", "", "explicit AWS region (overrides IMDS)")
-	fs.StringVar(&c.accountID, "account-id", "", "explicit AWS account id (overrides IMDS)")
+	fs.BoolVar(&c.includeEC2Metadata, "include-ec2-metadata", false, "fetch IMDSv2 metadata (off by default; AWS-signed instance-identity is the only cloud info source)")
 }
 
 func (c *packageCmd) Run(ctx context.Context, _ []string) error {
@@ -61,9 +51,6 @@ func (c *packageCmd) Run(ctx context.Context, _ []string) error {
 		InDir:              c.inDir,
 		OutPath:            c.outPath,
 		IncludeEC2Metadata: c.includeEC2Metadata,
-		InstanceIDOverride: c.instanceID,
-		RegionOverride:     c.region,
-		AccountIDOverride:  c.accountID,
 		ToolVersion:        c.version,
 		ToolCommit:         c.commit,
 		Adapter:            adapter,

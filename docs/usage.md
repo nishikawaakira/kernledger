@@ -156,8 +156,8 @@ Output:
 - A consolidated `manifest.json` inside the tarball that:
   - lists every file in the bundle with SHA-256 and size,
   - embeds the acquire and collect manifests,
-  - records cloud metadata (when `--include-ec2-metadata` is set,
-    or via the explicit overrides described below).
+  - records cloud metadata when `--include-ec2-metadata` is set
+    (omits the section otherwise — see below).
 - The SHA-256 of the tarball, printed to stdout. Record this in the
   ticket; it is the integrity anchor for the bundle as a whole.
 
@@ -165,33 +165,24 @@ Output:
 `manifest.artifacts` — a file cannot record its own hash. The full set
 of rules is in `docs/forensic-considerations.md` § "Self-reference rule".
 
-### Cloud metadata: overrides vs IMDS
+### Cloud metadata
 
-Order of precedence (highest first):
+There is exactly one source: IMDSv2, gated by `--include-ec2-metadata`.
 
-1. Explicit flags: `--instance-id`, `--region`, `--account-id`.
-2. IMDSv2 lookup (only if `--include-ec2-metadata` is set).
-3. Field is left empty.
+- With the flag set, `package` fetches instance-id / instance-type /
+  region / availability-zone / ami-id and the AWS-signed
+  instance-identity document (from which the account id is extracted).
+  All values land under `manifest.cloud`.
+- Without the flag, `package` makes no network call to
+  `169.254.169.254`. `manifest.cloud` is then absent from the JSON
+  entirely. AWS context is recovered from the bundle filename / S3
+  prefix / ticket — the same channel that carries the case id.
 
-Use the explicit flags when:
-
-- IMDS is disabled on the instance.
-- `package` is being run on a separate forensic workstation rather than
-  on the target host.
-- You want to pin values from your runbook regardless of what the host
-  reports back.
-
-Examples:
-
-```sh
-# Just the operator-supplied values; no network access to 169.254.169.254.
-sudo ./al2-mem-ir package --in ... --tarball ... \
-  --instance-id i-0abc --region ap-northeast-1 --account-id 123456789012
-
-# Operator provides instance-id, IMDS fills the rest.
-sudo ./al2-mem-ir package --in ... --tarball ... \
-  --include-ec2-metadata --instance-id i-0abc
-```
+There are intentionally **no operator-supplied override flags**.
+`--instance-id` / `--region` / `--account-id` existed in earlier
+versions and were removed for the same reason `--operator` was: they
+were forgeable free text that duplicated values IMDS provides
+authentically. See `forensic-considerations.md` § 5.
 
 Transfer the tarball off the host using whatever your IR playbook
 specifies (S3 with KMS, signed URL, encrypted USB, etc.).

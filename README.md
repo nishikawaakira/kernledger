@@ -95,23 +95,23 @@ sudo ./al2-mem-ir package \
   --in /mnt/forensic/CASE-1234 \
   --tarball /mnt/forensic/CASE-1234.tar.gz \
   --include-ec2-metadata
-
-# Or pin cloud metadata fields explicitly (useful when IMDS is
-# disabled, or when packaging on a separate forensic workstation):
-sudo ./al2-mem-ir package \
-  --in /mnt/forensic/CASE-1234 \
-  --tarball /mnt/forensic/CASE-1234.tar.gz \
-  --instance-id i-0abcdef1234567890 \
-  --region ap-northeast-1 \
-  --account-id 123456789012
 ```
 
-There is **no `--case-id` / `--operator` / `--reason` / `--authority`
-flag**. Case linkage is whatever filename / directory name the
-operator chooses for `--out` and `--tarball`. Operator identity is
-auto-captured from the kernel (`os.Geteuid()` + `/proc/self/loginuid`)
-into the manifest's `identity` section — see
-`forensic-considerations.md` § 5.
+The CLI is intentionally minimal:
+
+- **No identity flags** (`--operator` / `--reason` / `--authority`).
+  Operator identity is auto-captured from the kernel
+  (`os.Geteuid()` + `/proc/self/loginuid`) into the manifest's
+  `identity` section.
+- **No `--case-id`.** Case linkage is whatever filename / directory
+  name the operator chooses for `--out` and `--tarball`.
+- **No cloud override flags** (`--instance-id` / `--region` /
+  `--account-id`). Cloud info comes from IMDSv2 only, via
+  `--include-ec2-metadata`. When IMDS is disabled, `manifest.cloud`
+  is simply absent — recover AWS context from the bundle filename /
+  S3 prefix / ticket.
+
+See `forensic-considerations.md` § 5 for the rationale.
 
 `package` prints the SHA-256 of the produced tarball; record it in your
 ticket. The in-memory manifest is byte-identical to the `manifest.json`

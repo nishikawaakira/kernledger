@@ -124,15 +124,9 @@ sudo $TOOL package \
 The command prints the SHA-256 of the tarball — **write it down** in
 the ticket. It is the integrity anchor for the bundle as a whole.
 
-Cloud metadata overrides (use when IMDS is disabled or you want to pin
-runbook values regardless of host state):
-
-```sh
-sudo $TOOL package --in $OUT --tarball /mnt/forensic/$CASE_ID.tar.gz \
-  --instance-id i-0abcdef1234567890 \
-  --region ap-northeast-1 \
-  --account-id 123456789012
-```
+If IMDS is disabled on this host, drop `--include-ec2-metadata` —
+`manifest.cloud` will simply be absent from the JSON, and the AWS
+context is recovered from the tarball filename / ticket instead.
 
 ## 6. Transfer the bundle off the host
 
