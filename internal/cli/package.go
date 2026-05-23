@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/example/kernledger/internal/pkgbuild"
+	"github.com/nishikawaakira/kernledger/internal/pkgbuild"
 )
 
 type packageCmd struct {
@@ -22,8 +22,10 @@ func newPackageCmd(version, commit string) *packageCmd {
 	return &packageCmd{version: version, commit: commit}
 }
 
-func (c *packageCmd) Name() string     { return "package" }
-func (c *packageCmd) Synopsis() string { return "bundle an --out directory into a tar.gz with manifest" }
+func (c *packageCmd) Name() string { return "package" }
+func (c *packageCmd) Synopsis() string {
+	return "bundle an --out directory into a tar.gz with manifest"
+}
 
 func (c *packageCmd) SetFlags(fs *flag.FlagSet) {
 	c.cf.bind(fs)

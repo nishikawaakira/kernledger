@@ -17,26 +17,26 @@ import (
 	"strings"
 	"time"
 
-	"github.com/example/kernledger/internal/audit"
-	"github.com/example/kernledger/internal/distro"
-	"github.com/example/kernledger/internal/executor"
-	"github.com/example/kernledger/internal/manifest"
+	"github.com/nishikawaakira/kernledger/internal/audit"
+	"github.com/nishikawaakira/kernledger/internal/distro"
+	"github.com/nishikawaakira/kernledger/internal/executor"
+	"github.com/nishikawaakira/kernledger/internal/manifest"
 )
 
 // Item is one collection step.
 type Item struct {
-	Name       string   // file-safe slug
-	Cmd        string   // binary
-	Args       []string // arguments
-	Optional   bool     // do not warn if binary is missing
-	Timeout    time.Duration
+	Name     string   // file-safe slug
+	Cmd      string   // binary
+	Args     []string // arguments
+	Optional bool     // do not warn if binary is missing
+	Timeout  time.Duration
 }
 
 // Options drive collection.
 type Options struct {
-	OutDir      string
-	IncludeEnv  bool
-	DryRun      bool
+	OutDir     string
+	IncludeEnv bool
+	DryRun     bool
 }
 
 // Collector runs items and produces a manifest.Collection.

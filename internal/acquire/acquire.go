@@ -23,17 +23,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/example/kernledger/internal/audit"
-	"github.com/example/kernledger/internal/executor"
-	"github.com/example/kernledger/internal/hashutil"
-	"github.com/example/kernledger/internal/manifest"
+	"github.com/nishikawaakira/kernledger/internal/audit"
+	"github.com/nishikawaakira/kernledger/internal/executor"
+	"github.com/nishikawaakira/kernledger/internal/hashutil"
+	"github.com/nishikawaakira/kernledger/internal/manifest"
 )
 
 // Options configures a single acquisition.
 type Options struct {
-	ModulePath  string // absolute path to lime.ko (or equivalent)
-	OutputPath  string // path= argument to LiME
-	OutputMode  string // "file" or "tcp"
+	ModulePath   string // absolute path to lime.ko (or equivalent)
+	OutputPath   string // path= argument to LiME
+	OutputMode   string // "file" or "tcp"
 	OutputFormat string // "lime" (default) / "raw" / "padded"
 	TCPListen    string // ":4444" when OutputMode == "tcp"
 	Rmmod        bool   // attempt rmmod after acquisition

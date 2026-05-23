@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/example/kernledger/internal/audit"
-	"github.com/example/kernledger/internal/executor"
+	"github.com/nishikawaakira/kernledger/internal/audit"
+	"github.com/nishikawaakira/kernledger/internal/executor"
 )
 
 // failingExecutor always returns a non-nil error so we can exercise

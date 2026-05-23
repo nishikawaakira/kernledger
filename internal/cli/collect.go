@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/example/kernledger/internal/collector"
-	"github.com/example/kernledger/internal/executor"
-	"github.com/example/kernledger/internal/manifest"
+	"github.com/nishikawaakira/kernledger/internal/collector"
+	"github.com/nishikawaakira/kernledger/internal/executor"
+	"github.com/nishikawaakira/kernledger/internal/manifest"
 )
 
 type collectCmd struct {

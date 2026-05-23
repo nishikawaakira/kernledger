@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/example/kernledger/internal/audit"
-	"github.com/example/kernledger/internal/distro"
+	"github.com/nishikawaakira/kernledger/internal/audit"
+	"github.com/nishikawaakira/kernledger/internal/distro"
 )
 
 // commonFlags is embedded in every subcommand. It provides cross-cutting

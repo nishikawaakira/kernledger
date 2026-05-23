@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/example/kernledger/internal/audit"
-	"github.com/example/kernledger/internal/executor"
-	"github.com/example/kernledger/internal/manifest"
+	"github.com/nishikawaakira/kernledger/internal/audit"
+	"github.com/nishikawaakira/kernledger/internal/executor"
+	"github.com/nishikawaakira/kernledger/internal/manifest"
 )
 
 // fakeExecutor satisfies executor.Executor and records every call.

@@ -2,7 +2,7 @@ SHELL := /bin/bash
 
 BINARY      := kernledger
 FIXTURE     := ir-lab-target
-PKG         := github.com/example/kernledger
+PKG         := github.com/nishikawaakira/kernledger
 CMD         := ./cmd/kernledger
 FIXTURE_CMD := ./cmd/ir-lab-target
 VERSION     ?= $(shell git describe --tags --dirty --always 2>/dev/null || echo dev)

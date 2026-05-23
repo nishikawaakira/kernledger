@@ -12,13 +12,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/example/kernledger/internal/cli"
+	"github.com/nishikawaakira/kernledger/internal/cli"
 
 	// Distro adapters. Order does not matter; each calls
 	// distro.Register from its init().
-	_ "github.com/example/kernledger/internal/distro/amazonlinux2"
-	_ "github.com/example/kernledger/internal/distro/amazonlinux2023"
-	_ "github.com/example/kernledger/internal/distro/ubuntu"
+	_ "github.com/nishikawaakira/kernledger/internal/distro/amazonlinux2"
+	_ "github.com/nishikawaakira/kernledger/internal/distro/amazonlinux2023"
+	_ "github.com/nishikawaakira/kernledger/internal/distro/ubuntu"
 )
 
 // Set via -ldflags at build time. See Makefile.

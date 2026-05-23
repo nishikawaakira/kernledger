@@ -20,18 +20,20 @@ import (
 // Additive changes do not require a bump.
 //
 // 2.0.0 (2026-05): Dropped CaseInfo.Operator / Reason / Authority. Added
-//   Identity (effective uid + /proc/self/loginuid) auto-capture.
+//
+//	Identity (effective uid + /proc/self/loginuid) auto-capture.
 //
 // 3.0.0 (2026-05): Dropped CaseInfo entirely. Operators link bundles to
-//   external tickets via the filename / directory name they choose
-//   (`--out` and `--tarball` arguments), not via a manifest field.
-//   Rationale: --case-id was a free-text self-declaration with the
-//   same forgeability concerns as the operator/reason/authority
-//   fields removed in 2.0.0, and it duplicates information that is
-//   already encoded by the operator at the filesystem layer. Removing
-//   it shrinks the operator-supplied CLI surface to behavioral flags
-//   only (--dry-run, --execute, --include-env, etc.) — there are no
-//   identity-style fields left to forge or to forget to fill in.
+//
+//	external tickets via the filename / directory name they choose
+//	(`--out` and `--tarball` arguments), not via a manifest field.
+//	Rationale: --case-id was a free-text self-declaration with the
+//	same forgeability concerns as the operator/reason/authority
+//	fields removed in 2.0.0, and it duplicates information that is
+//	already encoded by the operator at the filesystem layer. Removing
+//	it shrinks the operator-supplied CLI surface to behavioral flags
+//	only (--dry-run, --execute, --include-env, etc.) — there are no
+//	identity-style fields left to forge or to forget to fill in.
 const SchemaVersion = "3.0.0"
 
 // Manifest is the top-level evidence record.
@@ -130,13 +132,13 @@ type CollectedCmd struct {
 
 // Analysis records a Volatility 3 run (analyst side).
 type Analysis struct {
-	Volatility   string         `json:"volatility_path"`
-	ImagePath    string         `json:"image_path"`
-	SymbolsPath  string         `json:"symbols_path"`
-	StartedAt    time.Time      `json:"started_at"`
-	EndedAt      time.Time      `json:"ended_at"`
+	Volatility    string         `json:"volatility_path"`
+	ImagePath     string         `json:"image_path"`
+	SymbolsPath   string         `json:"symbols_path"`
+	StartedAt     time.Time      `json:"started_at"`
+	EndedAt       time.Time      `json:"ended_at"`
 	PluginResults []PluginResult `json:"plugin_results"`
-	ReportPath   string         `json:"report_path,omitempty"`
+	ReportPath    string         `json:"report_path,omitempty"`
 }
 
 // Summary counts how many plugins succeeded and failed.

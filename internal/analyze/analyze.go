@@ -10,17 +10,17 @@
 //
 //   - Run() therefore distinguishes two error classes:
 //
-//       SETUP failure   — Validate() or MkdirAll() fails. Returns
-//                         (nil, error). Nothing has happened yet, so
-//                         there is no manifest to persist. The caller
-//                         should surface the error and exit non-zero.
+//     SETUP failure   — Validate() or MkdirAll() fails. Returns
+//     (nil, error). Nothing has happened yet, so
+//     there is no manifest to persist. The caller
+//     should surface the error and exit non-zero.
 //
-//       PLUGIN failure  — exec.Run() returns an error for some plugin,
-//                         or the plugin exits non-zero. The Run loop
-//                         records it as PluginResult.Err / ExitCode
-//                         and CONTINUES with the remaining plugins.
-//                         Run() returns (Analysis, nil) regardless of
-//                         how many plugins failed.
+//     PLUGIN failure  — exec.Run() returns an error for some plugin,
+//     or the plugin exits non-zero. The Run loop
+//     records it as PluginResult.Err / ExitCode
+//     and CONTINUES with the remaining plugins.
+//     Run() returns (Analysis, nil) regardless of
+//     how many plugins failed.
 //
 //   - The caller MUST always persist the returned Analysis (when it is
 //     non-nil) and use Analysis.Summary() to decide whether to flag
@@ -36,9 +36,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/example/kernledger/internal/audit"
-	"github.com/example/kernledger/internal/executor"
-	"github.com/example/kernledger/internal/manifest"
+	"github.com/nishikawaakira/kernledger/internal/audit"
+	"github.com/nishikawaakira/kernledger/internal/executor"
+	"github.com/nishikawaakira/kernledger/internal/manifest"
 )
 
 // DefaultPlugins is the MVP plugin list.

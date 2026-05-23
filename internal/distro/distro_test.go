@@ -9,18 +9,18 @@ import (
 
 // fakeAdapter is used only by these tests.
 type fakeAdapter struct {
-	id        string
-	matchID   string
-	matchVer  string
+	id       string
+	matchID  string
+	matchVer string
 }
 
-func (f *fakeAdapter) ID() string                              { return f.id }
-func (f *fakeAdapter) Describe() string                        { return f.id + "-test" }
-func (f *fakeAdapter) Detect(o OSInfo) bool                    { return o.ID == f.matchID && o.VersionID == f.matchVer }
-func (f *fakeAdapter) Paths() ArtifactPaths                    { return ArtifactPaths{} }
-func (f *fakeAdapter) ServiceQueries() []ServiceQuery          { return nil }
-func (f *fakeAdapter) LimeHints(KernelInfo) LimeHints          { return LimeHints{} }
-func (f *fakeAdapter) CloudProviders() []CloudProvider         { return nil }
+func (f *fakeAdapter) ID() string                      { return f.id }
+func (f *fakeAdapter) Describe() string                { return f.id + "-test" }
+func (f *fakeAdapter) Detect(o OSInfo) bool            { return o.ID == f.matchID && o.VersionID == f.matchVer }
+func (f *fakeAdapter) Paths() ArtifactPaths            { return ArtifactPaths{} }
+func (f *fakeAdapter) ServiceQueries() []ServiceQuery  { return nil }
+func (f *fakeAdapter) LimeHints(KernelInfo) LimeHints  { return LimeHints{} }
+func (f *fakeAdapter) CloudProviders() []CloudProvider { return nil }
 
 func TestRegister_DuplicatePanics(t *testing.T) {
 	a := &fakeAdapter{id: "test-dup", matchID: "x", matchVer: "1"}
@@ -93,5 +93,5 @@ var _ CloudProvider = (*nullProvider)(nil)
 
 type nullProvider struct{}
 
-func (nullProvider) Name() string                                  { return "null" }
+func (nullProvider) Name() string                                     { return "null" }
 func (nullProvider) Fetch(context.Context) (map[string]string, error) { return nil, nil }

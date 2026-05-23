@@ -4,8 +4,8 @@
 // Notes:
 //   - This runs on the ANALYSIS workstation, not the target host.
 //   - No automatic download. The operator must already have:
-//       * dwarf2json binary
-//       * vmlinux  (with DWARF) OR module.ko-debuginfo
+//   - dwarf2json binary
+//   - vmlinux  (with DWARF) OR module.ko-debuginfo
 //   - We never modify ~/.cache or system paths; output goes to --out.
 package symbols
 
@@ -17,17 +17,17 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/example/kernledger/internal/audit"
-	"github.com/example/kernledger/internal/executor"
+	"github.com/nishikawaakira/kernledger/internal/audit"
+	"github.com/nishikawaakira/kernledger/internal/executor"
 )
 
 // Options for Generate.
 type Options struct {
-	Dwarf2JSON   string // path to dwarf2json
-	Vmlinux      string // path to vmlinux (DWARF-bearing)
-	BTFPath      string // optional /sys/kernel/btf/vmlinux dump
-	KernelLabel  string // logical label, e.g. "5.10.220-209.869.amzn2.x86_64"
-	OutDir       string // where to write <label>.json
+	Dwarf2JSON  string // path to dwarf2json
+	Vmlinux     string // path to vmlinux (DWARF-bearing)
+	BTFPath     string // optional /sys/kernel/btf/vmlinux dump
+	KernelLabel string // logical label, e.g. "5.10.220-209.869.amzn2.x86_64"
+	OutDir      string // where to write <label>.json
 }
 
 // Validate sanity-checks the inputs.

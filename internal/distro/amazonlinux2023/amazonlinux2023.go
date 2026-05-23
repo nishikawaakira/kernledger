@@ -5,13 +5,13 @@
 //
 // Relationship to the amazonlinux2 adapter:
 //
-//   AL2 and AL2023 share the broad RHEL/Fedora lineage (rpm/dnf-yum
-//   packaging, systemd, NetworkManager-ish). We intentionally DO NOT
-//   share code between the two adapters yet — they would only diverge
-//   further as new logs/paths get added. When a third RHEL-family
-//   adapter lands (RHEL 9, Rocky, AlmaLinux) we will lift the truly
-//   common defaults into a `rhelfamily` helper package. Until then,
-//   duplication is cheaper than the wrong abstraction.
+//	AL2 and AL2023 share the broad RHEL/Fedora lineage (rpm/dnf-yum
+//	packaging, systemd, NetworkManager-ish). We intentionally DO NOT
+//	share code between the two adapters yet — they would only diverge
+//	further as new logs/paths get added. When a third RHEL-family
+//	adapter lands (RHEL 9, Rocky, AlmaLinux) we will lift the truly
+//	common defaults into a `rhelfamily` helper package. Until then,
+//	duplication is cheaper than the wrong abstraction.
 //
 // Notable AL2023 vs AL2 differences captured here:
 //
@@ -30,8 +30,8 @@ package amazonlinux2023
 import (
 	"context"
 
-	"github.com/example/kernledger/internal/distro"
-	"github.com/example/kernledger/internal/ec2"
+	"github.com/nishikawaakira/kernledger/internal/distro"
+	"github.com/nishikawaakira/kernledger/internal/ec2"
 )
 
 const adapterID = "amazonlinux2023"

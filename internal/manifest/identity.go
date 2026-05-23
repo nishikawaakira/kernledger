@@ -10,21 +10,21 @@ import (
 // Identity records WHO the kernel says is running the tool, not who
 // the operator claims to be. Two sources of truth, both auto-captured:
 //
-//   EffectiveUID / EffectiveUsername:
-//     What os.Geteuid() returns. For a tool invoked via sudo this is
-//     typically 0 / root, which by itself tells the reviewer nothing
-//     interesting — but a non-root EUID is a real signal (the run
-//     happened without privilege escalation, so root-only artifacts
-//     are intentionally absent).
+//	EffectiveUID / EffectiveUsername:
+//	  What os.Geteuid() returns. For a tool invoked via sudo this is
+//	  typically 0 / root, which by itself tells the reviewer nothing
+//	  interesting — but a non-root EUID is a real signal (the run
+//	  happened without privilege escalation, so root-only artifacts
+//	  are intentionally absent).
 //
-//   LoginUID / LoginUsername:
-//     What /proc/self/loginuid says. Linux's auditd subsystem sets
-//     loginuid to the uid of the user that initiated the login session,
-//     and the kernel preserves it across sudo/su. This is the closest
-//     thing to an "audit identity" the OS provides and it is exactly
-//     what we want for chain of custody. LoginUID == -1 means the
-//     kernel has no recorded login (boot-time invocation, container
-//     without audit support, non-Linux host).
+//	LoginUID / LoginUsername:
+//	  What /proc/self/loginuid says. Linux's auditd subsystem sets
+//	  loginuid to the uid of the user that initiated the login session,
+//	  and the kernel preserves it across sudo/su. This is the closest
+//	  thing to an "audit identity" the OS provides and it is exactly
+//	  what we want for chain of custody. LoginUID == -1 means the
+//	  kernel has no recorded login (boot-time invocation, container
+//	  without audit support, non-Linux host).
 //
 // Neither field is operator-controlled at the CLI layer — both come
 // from the kernel's view of the process. They CAN be tampered with by

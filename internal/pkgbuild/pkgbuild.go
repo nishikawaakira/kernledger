@@ -3,14 +3,14 @@
 //
 // The bundle layout:
 //
-//   bundle.tar.gz
-//   └── <case_id-or-hostname>-<timestamp>/
-//       ├── manifest.json          (consolidated)
-//       ├── acquire-manifest.json  (if present)
-//       ├── collect-manifest.json  (if present)
-//       ├── audit.log
-//       ├── collect/...
-//       └── memory.lime            (if present)
+//	bundle.tar.gz
+//	└── <case_id-or-hostname>-<timestamp>/
+//	    ├── manifest.json          (consolidated)
+//	    ├── acquire-manifest.json  (if present)
+//	    ├── collect-manifest.json  (if present)
+//	    ├── audit.log
+//	    ├── collect/...
+//	    └── memory.lime            (if present)
 //
 // Self-reference rule:
 //
@@ -24,9 +24,9 @@
 //     caller is byte-identical to the on-disk `manifest.json` inside
 //     the tarball.
 //   - Integrity of `manifest.json` itself is established by:
-//       (a) the parallel `acquire-manifest.json`/`collect-manifest.json`
-//           files saved at acquisition time (also inside the bundle),
-//       (b) the tarball-level SHA-256 returned by Build().
+//     (a) the parallel `acquire-manifest.json`/`collect-manifest.json`
+//     files saved at acquisition time (also inside the bundle),
+//     (b) the tarball-level SHA-256 returned by Build().
 package pkgbuild
 
 import (
@@ -41,10 +41,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/example/kernledger/internal/audit"
-	"github.com/example/kernledger/internal/distro"
-	"github.com/example/kernledger/internal/hashutil"
-	"github.com/example/kernledger/internal/manifest"
+	"github.com/nishikawaakira/kernledger/internal/audit"
+	"github.com/nishikawaakira/kernledger/internal/distro"
+	"github.com/nishikawaakira/kernledger/internal/hashutil"
+	"github.com/nishikawaakira/kernledger/internal/manifest"
 )
 
 // Options for Build.

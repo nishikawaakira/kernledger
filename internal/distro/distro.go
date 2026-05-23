@@ -42,11 +42,11 @@ type OSInfo struct {
 // ArtifactPaths lists distro-specific log / config locations the
 // collector should attempt. Globs are allowed; the collector resolves them.
 type ArtifactPaths struct {
-	SystemLogs       []string // e.g. /var/log/messages, /var/log/secure
-	CronConfigs      []string // /etc/crontab, /etc/cron.d/*
-	CloudInitLogs    []string
-	AgentLogs        []string // SSM, ECS, CloudWatch agent paths
-	AuthorizedKeys   []string // glob patterns
+	SystemLogs     []string // e.g. /var/log/messages, /var/log/secure
+	CronConfigs    []string // /etc/crontab, /etc/cron.d/*
+	CloudInitLogs  []string
+	AgentLogs      []string // SSM, ECS, CloudWatch agent paths
+	AuthorizedKeys []string // glob patterns
 }
 
 // ServiceQuery returns the commands used to enumerate services.

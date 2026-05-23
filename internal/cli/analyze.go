@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/example/kernledger/internal/analyze"
-	"github.com/example/kernledger/internal/executor"
-	"github.com/example/kernledger/internal/manifest"
+	"github.com/nishikawaakira/kernledger/internal/analyze"
+	"github.com/nishikawaakira/kernledger/internal/executor"
+	"github.com/nishikawaakira/kernledger/internal/manifest"
 )
 
 type analyzeCmd struct {
@@ -31,8 +31,10 @@ func newAnalyzeCmd(version, commit string) *analyzeCmd {
 	return &analyzeCmd{version: version, commit: commit}
 }
 
-func (c *analyzeCmd) Name() string     { return "analyze" }
-func (c *analyzeCmd) Synopsis() string { return "drive Volatility 3 against a memory image (analyst side)" }
+func (c *analyzeCmd) Name() string { return "analyze" }
+func (c *analyzeCmd) Synopsis() string {
+	return "drive Volatility 3 against a memory image (analyst side)"
+}
 
 func (c *analyzeCmd) SetFlags(fs *flag.FlagSet) {
 	c.cf.bind(fs)
@@ -46,10 +48,10 @@ func (c *analyzeCmd) SetFlags(fs *flag.FlagSet) {
 
 // Exit code policy for `analyze` (single source of truth):
 //
-//   0 — every plugin succeeded (ExitCode==0 and Err=="").
-//   1 — partial failure: at least one plugin failed, OR a setup error
-//       (Validate / MkdirAll) prevented the run from starting, OR the
-//       manifest could not be written.
+//	0 — every plugin succeeded (ExitCode==0 and Err=="").
+//	1 — partial failure: at least one plugin failed, OR a setup error
+//	    (Validate / MkdirAll) prevented the run from starting, OR the
+//	    manifest could not be written.
 //
 // In ALL cases where a *manifest.Analysis was produced (i.e. we got
 // past setup), analyze-manifest.json is written before we return. The

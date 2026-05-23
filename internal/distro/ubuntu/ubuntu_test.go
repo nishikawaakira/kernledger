@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/example/kernledger/internal/distro"
+	"github.com/nishikawaakira/kernledger/internal/distro"
 )
 
 // TestDetect_AnyVersion locks in the documented policy: the Ubuntu
@@ -19,9 +19,9 @@ func TestDetect_AnyVersion(t *testing.T) {
 		{distro.OSInfo{ID: "ubuntu", VersionID: "20.04"}, true},
 		{distro.OSInfo{ID: "ubuntu", VersionID: "22.04"}, true},
 		{distro.OSInfo{ID: "ubuntu", VersionID: "24.04"}, true},
-		{distro.OSInfo{ID: "ubuntu", VersionID: "99.99"}, true},  // future
-		{distro.OSInfo{ID: "ubuntu", VersionID: ""}, true},       // stripped /etc/os-release
-		{distro.OSInfo{ID: "debian", VersionID: "12"}, false},    // closely related but not Ubuntu
+		{distro.OSInfo{ID: "ubuntu", VersionID: "99.99"}, true}, // future
+		{distro.OSInfo{ID: "ubuntu", VersionID: ""}, true},      // stripped /etc/os-release
+		{distro.OSInfo{ID: "debian", VersionID: "12"}, false},   // closely related but not Ubuntu
 		{distro.OSInfo{ID: "amzn", VersionID: "2"}, false},
 		{distro.OSInfo{ID: "amzn", VersionID: "2023"}, false},
 		{distro.OSInfo{}, false},

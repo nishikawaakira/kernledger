@@ -7,8 +7,8 @@ package amazonlinux2
 import (
 	"context"
 
-	"github.com/example/kernledger/internal/distro"
-	"github.com/example/kernledger/internal/ec2"
+	"github.com/nishikawaakira/kernledger/internal/distro"
+	"github.com/nishikawaakira/kernledger/internal/ec2"
 )
 
 const adapterID = "amazonlinux2"

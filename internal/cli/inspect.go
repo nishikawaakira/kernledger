@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/example/kernledger/internal/audit"
-	"github.com/example/kernledger/internal/distro"
-	"github.com/example/kernledger/internal/executor"
+	"github.com/nishikawaakira/kernledger/internal/audit"
+	"github.com/nishikawaakira/kernledger/internal/distro"
+	"github.com/nishikawaakira/kernledger/internal/executor"
 )
 
 type inspectCmd struct {
@@ -21,7 +21,7 @@ type inspectCmd struct {
 	commit  string
 	cf      commonFlags
 
-	jsonOnly bool
+	jsonOnly  bool
 	humanOnly bool
 }
 
@@ -40,19 +40,19 @@ func (c *inspectCmd) SetFlags(fs *flag.FlagSet) {
 
 // InspectReport is the JSON payload for `kernledger inspect`.
 type InspectReport struct {
-	SchemaVersion string             `json:"schema_version"`
-	Timestamp     time.Time          `json:"timestamp"`
-	Adapter       string             `json:"distro_adapter"`
-	AdapterLabel  string             `json:"distro_adapter_label"`
-	OS            distro.OSInfo      `json:"os"`
-	Kernel        distro.KernelInfo  `json:"kernel"`
-	SecureBoot    string             `json:"secure_boot"`
-	Tainted       string             `json:"kernel_tainted"`
+	SchemaVersion string            `json:"schema_version"`
+	Timestamp     time.Time         `json:"timestamp"`
+	Adapter       string            `json:"distro_adapter"`
+	AdapterLabel  string            `json:"distro_adapter_label"`
+	OS            distro.OSInfo     `json:"os"`
+	Kernel        distro.KernelInfo `json:"kernel"`
+	SecureBoot    string            `json:"secure_boot"`
+	Tainted       string            `json:"kernel_tainted"`
 	KernelModules struct {
 		ModulesPath string `json:"modules_path"`
 		Exists      bool   `json:"exists"`
 	} `json:"kernel_modules"`
-	DetectedAgents []string `json:"detected_agents"`
+	DetectedAgents []string         `json:"detected_agents"`
 	LimeHints      distro.LimeHints `json:"lime_hints"`
 	Warnings       []string         `json:"warnings"`
 }

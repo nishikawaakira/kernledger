@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/example/kernledger/internal/executor"
-	"github.com/example/kernledger/internal/symbols"
+	"github.com/nishikawaakira/kernledger/internal/executor"
+	"github.com/nishikawaakira/kernledger/internal/symbols"
 )
 
 type symbolsCmd struct {
@@ -25,8 +25,10 @@ func newSymbolsCmd(version, commit string) *symbolsCmd {
 	return &symbolsCmd{version: version, commit: commit}
 }
 
-func (c *symbolsCmd) Name() string     { return "symbols" }
-func (c *symbolsCmd) Synopsis() string { return "generate Volatility 3 Linux symbols via dwarf2json (analyst side)" }
+func (c *symbolsCmd) Name() string { return "symbols" }
+func (c *symbolsCmd) Synopsis() string {
+	return "generate Volatility 3 Linux symbols via dwarf2json (analyst side)"
+}
 
 func (c *symbolsCmd) SetFlags(fs *flag.FlagSet) {
 	c.cf.bind(fs)

@@ -12,9 +12,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/example/kernledger/internal/audit"
-	"github.com/example/kernledger/internal/distro"
-	"github.com/example/kernledger/internal/manifest"
+	"github.com/nishikawaakira/kernledger/internal/audit"
+	"github.com/nishikawaakira/kernledger/internal/distro"
+	"github.com/nishikawaakira/kernledger/internal/manifest"
 )
 
 func TestBuild_HashesAndTars(t *testing.T) {
@@ -266,11 +266,11 @@ type fakeAdapter struct {
 	provider distro.CloudProvider
 }
 
-func (f *fakeAdapter) ID() string                         { return f.name }
-func (f *fakeAdapter) Describe() string                   { return f.name }
-func (f *fakeAdapter) Detect(distro.OSInfo) bool          { return true }
-func (f *fakeAdapter) Paths() distro.ArtifactPaths        { return distro.ArtifactPaths{} }
-func (f *fakeAdapter) ServiceQueries() []distro.ServiceQuery { return nil }
+func (f *fakeAdapter) ID() string                                   { return f.name }
+func (f *fakeAdapter) Describe() string                             { return f.name }
+func (f *fakeAdapter) Detect(distro.OSInfo) bool                    { return true }
+func (f *fakeAdapter) Paths() distro.ArtifactPaths                  { return distro.ArtifactPaths{} }
+func (f *fakeAdapter) ServiceQueries() []distro.ServiceQuery        { return nil }
 func (f *fakeAdapter) LimeHints(distro.KernelInfo) distro.LimeHints { return distro.LimeHints{} }
 func (f *fakeAdapter) CloudProviders() []distro.CloudProvider {
 	if f.provider == nil {
@@ -284,7 +284,7 @@ type fakeProvider struct {
 	fetch func() (map[string]string, error)
 }
 
-func (p *fakeProvider) Name() string                                  { return p.name }
+func (p *fakeProvider) Name() string                                         { return p.name }
 func (p *fakeProvider) Fetch(ctx context.Context) (map[string]string, error) { return p.fetch() }
 
 // suppress unused import warning if json is not used elsewhere.

@@ -27,10 +27,10 @@ type Event struct {
 
 // Logger serializes Events to an io.Writer.
 type Logger struct {
-	mu       sync.Mutex
-	w        io.Writer
-	closeFn  func() error
-	mirror   io.Writer // optional stderr mirror for human view
+	mu      sync.Mutex
+	w       io.Writer
+	closeFn func() error
+	mirror  io.Writer // optional stderr mirror for human view
 }
 
 // NewFileLogger opens path for append and writes JSONL.

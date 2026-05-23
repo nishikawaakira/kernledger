@@ -4,38 +4,38 @@
 //
 // Scope:
 //
-//   This adapter matches ANY Ubuntu host (`ID=ubuntu`) regardless of
-//   `VERSION_ID`. The reason: log paths, systemd usage, apt/dpkg layout,
-//   and kernel package naming are stable across modern Ubuntu LTS
-//   releases (20.04 / 22.04 / 24.04). Pinning to specific VERSION_IDs
-//   would force a rebuild every time a new LTS ships, with no real
-//   forensic gain.
+//	This adapter matches ANY Ubuntu host (`ID=ubuntu`) regardless of
+//	`VERSION_ID`. The reason: log paths, systemd usage, apt/dpkg layout,
+//	and kernel package naming are stable across modern Ubuntu LTS
+//	releases (20.04 / 22.04 / 24.04). Pinning to specific VERSION_IDs
+//	would force a rebuild every time a new LTS ships, with no real
+//	forensic gain.
 //
-//   If a future Ubuntu version diverges meaningfully (e.g. 26.04
-//   replaces systemd or changes the auth log location), we will add a
-//   version-specific adapter at THAT point and keep this one as the
-//   pre-divergence default. That's exactly the situation the plugin
-//   pattern is built for.
+//	If a future Ubuntu version diverges meaningfully (e.g. 26.04
+//	replaces systemd or changes the auth log location), we will add a
+//	version-specific adapter at THAT point and keep this one as the
+//	pre-divergence default. That's exactly the situation the plugin
+//	pattern is built for.
 //
 // Notable differences from the AL2 / AL2023 adapters:
 //
 //   - Log conventions are Debian-style:
-//       /var/log/auth.log    (vs /var/log/secure)
-//       /var/log/syslog      (vs /var/log/messages)
-//       /var/log/kern.log
-//       /var/log/dpkg.log + /var/log/apt/*  (vs yum/dnf logs)
-//       /var/log/ufw.log     (when ufw is enabled)
+//     /var/log/auth.log    (vs /var/log/secure)
+//     /var/log/syslog      (vs /var/log/messages)
+//     /var/log/kern.log
+//     /var/log/dpkg.log + /var/log/apt/*  (vs yum/dnf logs)
+//     /var/log/ufw.log     (when ufw is enabled)
 //
 //   - Cron spool lives at /var/spool/cron/crontabs/, not /var/spool/cron/.
 //
 //   - Kernel build deps for LiME use the Debian naming:
-//       linux-headers-<release>           (vs kernel-devel-<release>)
-//       linux-image-<release>-dbgsym      (vs kernel-debuginfo-<release>)
+//     linux-headers-<release>           (vs kernel-devel-<release>)
+//     linux-image-<release>-dbgsym      (vs kernel-debuginfo-<release>)
 //     Note: -dbgsym packages live on ddebs.ubuntu.com, not the default
 //     archive. Operators need to enable that repo to install them.
 //
 //   - Ubuntu cloud AMIs frequently use flavored kernels named
-//       <ver>-aws / <ver>-azure / <ver>-gcp
+//     <ver>-aws / <ver>-azure / <ver>-gcp
 //     (e.g. "5.15.0-1051-aws"). KernelInfo.Release is used verbatim, so
 //     this just works — no special-casing required.
 //
@@ -53,8 +53,8 @@ package ubuntu
 import (
 	"context"
 
-	"github.com/example/kernledger/internal/distro"
-	"github.com/example/kernledger/internal/ec2"
+	"github.com/nishikawaakira/kernledger/internal/distro"
+	"github.com/nishikawaakira/kernledger/internal/ec2"
 )
 
 const adapterID = "ubuntu"

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/example/kernledger/internal/distro"
+	"github.com/nishikawaakira/kernledger/internal/distro"
 )
 
 func TestDetect(t *testing.T) {

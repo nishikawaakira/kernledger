@@ -1,3 +1,3 @@
-module github.com/example/kernledger
+module github.com/nishikawaakira/kernledger
 
 go 1.22

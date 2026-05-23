@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/example/kernledger/internal/manifest"
+	"github.com/nishikawaakira/kernledger/internal/manifest"
 )
 
 func TestSaveAnalyzeManifest_WritesFile(t *testing.T) {
