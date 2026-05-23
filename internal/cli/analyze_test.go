@@ -65,9 +65,16 @@ func TestSaveAnalyzeManifest_WritesFile(t *testing.T) {
 // argument (the plugin name) and exits 0 or 1 accordingly. This lets
 // us drive the real analyzeCmd.Run() — including its internal
 // executor.NewReal — without depending on Volatility being installed.
+// fakeVolScript must be POSIX-compatible — Ubuntu's /bin/sh is dash,
+// which does not support bash's "${@: -1}" negative-offset expansion.
+// The `for arg do ... done` loop (implicitly iterating "$@") is the
+// portable way to capture the last positional argument.
 const fakeVolScript = `#!/bin/sh
 # Last positional arg is the plugin name (kernledger always appends it).
-plugin="${@: -1}"
+plugin=
+for arg do
+  plugin=$arg
+done
 case "$plugin" in
   *envars*) echo "FAIL: $plugin" 1>&2; exit 1 ;;
   *)        echo "OK $plugin"; exit 0 ;;
