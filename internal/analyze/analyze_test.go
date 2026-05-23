@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/example/al2-mem-ir/internal/audit"
-	"github.com/example/al2-mem-ir/internal/executor"
-	"github.com/example/al2-mem-ir/internal/manifest"
+	"github.com/example/kernledger/internal/audit"
+	"github.com/example/kernledger/internal/executor"
+	"github.com/example/kernledger/internal/manifest"
 )
 
 // fakeExecutor satisfies executor.Executor and records every call.

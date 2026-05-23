@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/example/al2-mem-ir/internal/pkgbuild"
+	"github.com/example/kernledger/internal/pkgbuild"
 )
 
 type packageCmd struct {

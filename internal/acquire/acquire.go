@@ -23,10 +23,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/example/al2-mem-ir/internal/audit"
-	"github.com/example/al2-mem-ir/internal/executor"
-	"github.com/example/al2-mem-ir/internal/hashutil"
-	"github.com/example/al2-mem-ir/internal/manifest"
+	"github.com/example/kernledger/internal/audit"
+	"github.com/example/kernledger/internal/executor"
+	"github.com/example/kernledger/internal/hashutil"
+	"github.com/example/kernledger/internal/manifest"
 )
 
 // Options configures a single acquisition.

@@ -1,3 +1,3 @@
-module github.com/example/al2-mem-ir
+module github.com/example/kernledger
 
 go 1.22

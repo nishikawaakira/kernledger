@@ -8,7 +8,7 @@
   generating Volatility 3 symbols, or running plugins. Those live
   elsewhere by design.
 - **Have ready before opening this doc**: a LiME `.ko` matching the
-  running kernel (`uname -r`) and the `al2-mem-ir` binary staged on
+  running kernel (`uname -r`) and the `kernledger` binary staged on
   the host. Full pre-flight checklist below.
 - **First time end-to-end / verifying the whole pipeline**: use
   [`tryout-ec2.md`](tryout-ec2.md) — it covers prep, the IR action,
@@ -94,7 +94,7 @@ Before you touch the keyboard:
 - [ ] SOC / on-call has been notified. Loading the LiME kernel module
       WILL be visible to GuardDuty Runtime Monitoring, auditd, and any
       EDR. See `forensic-considerations.md` § 1.
-- [ ] `al2-mem-ir` binary is already staged on the host (e.g. `/tmp/al2-mem-ir`).
+- [ ] `kernledger` binary is already staged on the host (e.g. `/tmp/kernledger`).
 - [ ] A LiME `.ko` matching the **exact** running kernel is on the
       host (e.g. `/tmp/lime-$(uname -r).ko`).
 - [ ] A separate writable filesystem is mounted (NOT the system disk).
@@ -114,7 +114,7 @@ flags by design.
 ```sh
 export CASE_ID=CASE-1234         # ticket id; used only to build path names below
 export OUT=/mnt/forensic/$CASE_ID
-export TOOL=/tmp/al2-mem-ir
+export TOOL=/tmp/kernledger
 export LIME_KO=/tmp/lime-$(uname -r).ko
 ```
 
@@ -236,7 +236,7 @@ shasum -a 256 $CASE_ID.tar.gz   # compare against value printed by package
 - Provisioning the EC2 instance, EBS volume, IAM → `tryout-ec2.md` Phase 1.
 - Generating Volatility 3 symbols (`dwarf2json`) → analyst workstation
   responsibility; not part of the host action.
-- Running Volatility plugins (`al2-mem-ir analyze`) → analyst
+- Running Volatility plugins (`kernledger analyze`) → analyst
   workstation responsibility.
 
 ## Want the long form?

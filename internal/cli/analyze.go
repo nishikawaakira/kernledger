@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/example/al2-mem-ir/internal/analyze"
-	"github.com/example/al2-mem-ir/internal/executor"
-	"github.com/example/al2-mem-ir/internal/manifest"
+	"github.com/example/kernledger/internal/analyze"
+	"github.com/example/kernledger/internal/executor"
+	"github.com/example/kernledger/internal/manifest"
 )
 
 type analyzeCmd struct {

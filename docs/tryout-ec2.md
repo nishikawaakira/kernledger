@@ -2,7 +2,7 @@
 
 A copy-paste walkthrough that takes you from an empty AWS account to a
 real Volatility 3 plugin run against an actual memory image captured
-by `al2-mem-ir`. Designed to be repeatable in under an hour.
+by `kernledger`. Designed to be repeatable in under an hour.
 
 > **Already familiar with the tool?** Skip this guide and use
 > [`host-runbook.md`](host-runbook.md) — the host-side commands only,
@@ -20,12 +20,12 @@ by `al2-mem-ir`. Designed to be repeatable in under an hour.
    ┌──────────────────────────────┐         ┌───────────────────────────┐
    │  EC2 (Amazon Linux 2)        │         │  Mac (analyst workstation)│
    │  ─────────────────           │  scp    │  ──────────────────       │
-   │  1. al2-mem-ir collect       │ ──────► │  6. al2-mem-ir analyze    │
-   │  2. al2-mem-ir acquire       │         │     (Volatility 3 plugins) │
+   │  1. kernledger collect       │ ──────► │  6. kernledger analyze    │
+   │  2. kernledger acquire       │         │     (Volatility 3 plugins) │
    │     → memory.lime            │         │                           │
    │  3. dwarf2json               │         │                           │
    │     → kernel.json (symbols)  │         │                           │
-   │  4. al2-mem-ir package       │         │                           │
+   │  4. kernledger package       │         │                           │
    │     → tarball.tar.gz         │         │                           │
    └──────────────────────────────┘         └───────────────────────────┘
 ```
@@ -44,7 +44,7 @@ Total expected spend: **< USD $0.10** if you tear down promptly.
 
 On your Mac:
 
-- Go 1.22+ (for building `al2-mem-ir` and `dwarf2json`)
+- Go 1.22+ (for building `kernledger` and `dwarf2json`)
 - Python 3.10+ (for Volatility 3)
 - `awscli` v2 configured with credentials for a test account
 - An SSH key pair already imported into the test region
@@ -103,8 +103,8 @@ VPC_ID=$(aws ec2 describe-subnets --subnet-ids $SUBNET_ID \
 
 # Reuse default SG if you have one, or create a temporary SG.
 SG_ID=$(aws ec2 create-security-group \
-  --group-name al2-mem-ir-tryout-$RANDOM \
-  --description "al2-mem-ir tryout (auto-deleted)" \
+  --group-name kernledger-tryout-$RANDOM \
+  --description "kernledger tryout (auto-deleted)" \
   --vpc-id $VPC_ID --query GroupId --output text)
 MY_IP=$(curl -s https://checkip.amazonaws.com)/32
 aws ec2 authorize-security-group-ingress --group-id $SG_ID \
@@ -122,7 +122,7 @@ INSTANCE_ID=$(aws ec2 run-instances \
   --subnet-id $SUBNET_ID \
   --security-group-ids $SG_ID \
   --tag-specifications \
-    "ResourceType=instance,Tags=[{Key=Name,Value=al2-mem-ir-tryout},{Key=Purpose,Value=ir-tool-tryout}]" \
+    "ResourceType=instance,Tags=[{Key=Name,Value=kernledger-tryout},{Key=Purpose,Value=ir-tool-tryout}]" \
   --query 'Instances[0].InstanceId' --output text)
 
 aws ec2 wait instance-running --instance-ids $INSTANCE_ID
@@ -144,7 +144,7 @@ VOL_ID=$(aws ec2 create-volume \
   --availability-zone $AZ \
   --size 8 --volume-type gp3 \
   --tag-specifications \
-    "ResourceType=volume,Tags=[{Key=Name,Value=al2-mem-ir-forensic}]" \
+    "ResourceType=volume,Tags=[{Key=Name,Value=kernledger-forensic}]" \
   --query VolumeId --output text)
 aws ec2 wait volume-available --volume-ids $VOL_ID
 aws ec2 attach-volume --volume-id $VOL_ID --instance-id $INSTANCE_ID --device /dev/sdf
@@ -209,20 +209,20 @@ make KDIR=/lib/modules/$(uname -r)/build
 
 ---
 
-## Phase 3 — Stage the al2-mem-ir binary
+## Phase 3 — Stage the kernledger binary
 
 On your Mac, in the project root:
 
 ```sh
-make build       # → dist/al2-mem-ir-linux-amd64
-scp -i $KEY_FILE dist/al2-mem-ir-linux-amd64 ec2-user@$HOST:/tmp/al2-mem-ir
+make build       # → dist/kernledger-linux-amd64
+scp -i $KEY_FILE dist/kernledger-linux-amd64 ec2-user@$HOST:/tmp/kernledger
 ```
 
 On the instance:
 
 ```sh
-chmod +x /tmp/al2-mem-ir
-/tmp/al2-mem-ir --version
+chmod +x /tmp/kernledger
+/tmp/kernledger --version
 ```
 
 ---
@@ -258,8 +258,8 @@ Back in the first SSH session. Note `--allow-non-root` is **not** used
 ### 5.1 inspect (read-only, run first)
 
 ```sh
-sudo /tmp/al2-mem-ir inspect --json --quiet > /mnt/forensic/inspect.json
-sudo /tmp/al2-mem-ir inspect | head -30
+sudo /tmp/kernledger inspect --json --quiet > /mnt/forensic/inspect.json
+sudo /tmp/kernledger inspect | head -30
 ```
 
 Confirm:
@@ -271,7 +271,7 @@ Confirm:
 ### 5.2 collect (volatile artifacts)
 
 ```sh
-sudo /tmp/al2-mem-ir collect --out /mnt/forensic/$CASE_ID
+sudo /tmp/kernledger collect --out /mnt/forensic/$CASE_ID
 ```
 
 Spot-check the result:
@@ -289,7 +289,7 @@ The `--execute` gate is intentional. Plan once with `--dry-run`,
 inspect the resulting manifest, then run for real.
 
 ```sh
-sudo /tmp/al2-mem-ir acquire \
+sudo /tmp/kernledger acquire \
   --out /mnt/forensic/$CASE_ID \
   --module "$LIME_KO" \
   --output memory.lime \
@@ -305,7 +305,7 @@ You'll see `"dry_run": true` and a `notes` field reminding you that
 ### 5.4 acquire — the real run
 
 ```sh
-sudo /tmp/al2-mem-ir acquire \
+sudo /tmp/kernledger acquire \
   --out /mnt/forensic/$CASE_ID \
   --module "$LIME_KO" \
   --output memory.lime \
@@ -355,7 +355,7 @@ ls -la /mnt/forensic/$CASE_ID/symbols/linux/
 ### 5.6 package — the final bundle
 
 ```sh
-sudo /tmp/al2-mem-ir package \
+sudo /tmp/kernledger package \
   --in /mnt/forensic/$CASE_ID \
   --tarball /mnt/forensic/$CASE_ID.tar.gz \
   --include-ec2-metadata
@@ -424,7 +424,7 @@ vol --help | grep linux | head
 
 ---
 
-## Phase 8 — Run al2-mem-ir analyze
+## Phase 8 — Run kernledger analyze
 
 Volatility 3 expects symbols at a particular path. The symbol JSON
 we generated already lives under `symbols/linux/<release>.json`, which
@@ -432,7 +432,7 @@ is the layout Volatility looks for.
 
 ```sh
 # Still inside ${CASE_ID}-*/  on your Mac.
-../../dist/al2-mem-ir analyze \
+../../dist/kernledger analyze \
   --vol $(which vol) \
   --image $(pwd)/memory.lime \
   --symbols $(pwd)/symbols \
@@ -440,8 +440,8 @@ is the layout Volatility looks for.
   --out ./analysis-$CASE_ID
 ```
 
-> If you used the macOS arm64 build of al2-mem-ir, adjust the path. The
-> `dist/al2-mem-ir` produced by `make build-host` is the right one.
+> If you used the macOS arm64 build of kernledger, adjust the path. The
+> `dist/kernledger` produced by `make build-host` is the right one.
 
 Read the report:
 

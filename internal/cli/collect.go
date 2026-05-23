@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/example/al2-mem-ir/internal/collector"
-	"github.com/example/al2-mem-ir/internal/executor"
-	"github.com/example/al2-mem-ir/internal/manifest"
+	"github.com/example/kernledger/internal/collector"
+	"github.com/example/kernledger/internal/executor"
+	"github.com/example/kernledger/internal/manifest"
 )
 
 type collectCmd struct {

@@ -5,7 +5,7 @@
 //   - stable across versions (use SchemaVersion)
 //   - append-only with respect to a given case (never edit in place)
 //
-// A bundle produced by `al2-mem-ir package` contains exactly one
+// A bundle produced by `kernledger package` contains exactly one
 // Manifest covering all artifacts in the archive.
 package manifest
 
@@ -207,7 +207,7 @@ func New(toolVersion, commit, distroAdapter string) *Manifest {
 	return &Manifest{
 		SchemaVersion: SchemaVersion,
 		Tool: ToolInfo{
-			Name:    "al2-mem-ir",
+			Name:    "kernledger",
 			Version: toolVersion,
 			Commit:  commit,
 			Distro:  distroAdapter,

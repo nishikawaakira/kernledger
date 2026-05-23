@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/example/al2-mem-ir/internal/audit"
-	"github.com/example/al2-mem-ir/internal/distro"
-	"github.com/example/al2-mem-ir/internal/executor"
+	"github.com/example/kernledger/internal/audit"
+	"github.com/example/kernledger/internal/distro"
+	"github.com/example/kernledger/internal/executor"
 )
 
 type inspectCmd struct {
@@ -38,7 +38,7 @@ func (c *inspectCmd) SetFlags(fs *flag.FlagSet) {
 	fs.BoolVar(&c.humanOnly, "human", false, "emit human-readable only")
 }
 
-// InspectReport is the JSON payload for `al2-mem-ir inspect`.
+// InspectReport is the JSON payload for `kernledger inspect`.
 type InspectReport struct {
 	SchemaVersion string             `json:"schema_version"`
 	Timestamp     time.Time          `json:"timestamp"`
@@ -229,7 +229,7 @@ func inspectWarnings(r *InspectReport) []string {
 }
 
 func printInspectHuman(w *os.File, r *InspectReport) {
-	fmt.Fprintln(w, "== al2-mem-ir inspect ==")
+	fmt.Fprintln(w, "== kernledger inspect ==")
 	fmt.Fprintf(w, "  timestamp:     %s\n", r.Timestamp.Format(time.RFC3339))
 	fmt.Fprintf(w, "  os:            %s (id=%s version=%s)\n", r.OS.PrettyName, r.OS.ID, r.OS.VersionID)
 	fmt.Fprintf(w, "  adapter:       %s (%s)\n", r.AdapterLabel, r.Adapter)

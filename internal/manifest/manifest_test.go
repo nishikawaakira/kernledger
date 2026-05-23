@@ -70,7 +70,7 @@ func TestRoundTrip(t *testing.T) {
 	if len(got.Artifacts) != 1 || got.Artifacts[0].SHA256 != "deadbeef" {
 		t.Errorf("artifacts = %+v", got.Artifacts)
 	}
-	if got.Tool.Name != "al2-mem-ir" {
+	if got.Tool.Name != "kernledger" {
 		t.Errorf("tool = %+v", got.Tool)
 	}
 	// New() must auto-capture Identity. It is OS-dependent so we only

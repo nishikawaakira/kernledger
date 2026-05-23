@@ -1,14 +1,14 @@
 // Package amazonlinux2 is the distro adapter for Amazon Linux 2.
 //
-// Activation: blank-imported from cmd/al2-mem-ir/main.go so that its
+// Activation: blank-imported from cmd/kernledger/main.go so that its
 // init() registers the adapter into the distro registry.
 package amazonlinux2
 
 import (
 	"context"
 
-	"github.com/example/al2-mem-ir/internal/distro"
-	"github.com/example/al2-mem-ir/internal/ec2"
+	"github.com/example/kernledger/internal/distro"
+	"github.com/example/kernledger/internal/ec2"
 )
 
 const adapterID = "amazonlinux2"

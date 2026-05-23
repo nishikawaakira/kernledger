@@ -1,6 +1,6 @@
 // Package amazonlinux2023 is the distro adapter for Amazon Linux 2023.
 //
-// Activation: blank-imported from cmd/al2-mem-ir/main.go so that its
+// Activation: blank-imported from cmd/kernledger/main.go so that its
 // init() registers the adapter into the distro registry.
 //
 // Relationship to the amazonlinux2 adapter:
@@ -30,8 +30,8 @@ package amazonlinux2023
 import (
 	"context"
 
-	"github.com/example/al2-mem-ir/internal/distro"
-	"github.com/example/al2-mem-ir/internal/ec2"
+	"github.com/example/kernledger/internal/distro"
+	"github.com/example/kernledger/internal/ec2"
 )
 
 const adapterID = "amazonlinux2023"

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/example/al2-mem-ir/internal/distro"
+	"github.com/example/kernledger/internal/distro"
 )
 
 // TestDetect_AnyVersion locks in the documented policy: the Ubuntu

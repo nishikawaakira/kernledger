@@ -1,4 +1,4 @@
-# al2-mem-ir — operator runbook
+# kernledger — operator runbook
 
 Audience: incident responders who already have authorization to act on
 the target host.
@@ -57,7 +57,7 @@ Adapter-specific operational notes:
 Read-only. Run first.
 
 ```sh
-sudo ./al2-mem-ir inspect
+sudo ./kernledger inspect
 ```
 
 Outputs both human and JSON. Key fields:
@@ -72,13 +72,13 @@ Outputs both human and JSON. Key fields:
 JSON form is suitable for pipelining into ticketing systems:
 
 ```sh
-sudo ./al2-mem-ir inspect --json --quiet > /mnt/forensic/inspect.json
+sudo ./kernledger inspect --json --quiet > /mnt/forensic/inspect.json
 ```
 
 ## 2. collect (volatile artifacts)
 
 ```sh
-sudo ./al2-mem-ir collect --out /mnt/forensic/CASE-1234
+sudo ./kernledger collect --out /mnt/forensic/CASE-1234
 ```
 
 Effects:
@@ -107,7 +107,7 @@ the module, writes a manifest) but does not load the module.
 Plan first:
 
 ```sh
-sudo ./al2-mem-ir acquire \
+sudo ./kernledger acquire \
   --out /mnt/forensic/CASE-1234 \
   --module /tmp/lime-$(uname -r).ko \
   --output memory.lime \
@@ -117,7 +117,7 @@ sudo ./al2-mem-ir acquire \
 Inspect the resulting `acquire-manifest.json`. When you are ready:
 
 ```sh
-sudo ./al2-mem-ir acquire \
+sudo ./kernledger acquire \
   --out /mnt/forensic/CASE-1234 \
   --module /tmp/lime-$(uname -r).ko \
   --output memory.lime \
@@ -141,7 +141,7 @@ Notes:
 After both `collect` and `acquire` are done, bundle:
 
 ```sh
-sudo ./al2-mem-ir package \
+sudo ./kernledger package \
   --in /mnt/forensic/CASE-1234 \
   --tarball /mnt/forensic/CASE-1234.tar.gz \
   --include-ec2-metadata
@@ -190,7 +190,7 @@ specifies (S3 with KMS, signed URL, encrypted USB, etc.).
 ## 5. symbols (analyst workstation)
 
 ```sh
-al2-mem-ir symbols \
+kernledger symbols \
   --dwarf2json /opt/dwarf2json/dwarf2json \
   --vmlinux ./vmlinux-5.10.220-209.869.amzn2.x86_64 \
   --kernel  5.10.220-209.869.amzn2.x86_64 \
@@ -208,7 +208,7 @@ symbols/
 ## 6. analyze (analyst workstation)
 
 ```sh
-al2-mem-ir analyze \
+kernledger analyze \
   --vol /opt/volatility3/vol.py \
   --image  ./memory.lime \
   --symbols ./symbols \

@@ -12,13 +12,13 @@ package registrytest
 import (
 	"testing"
 
-	"github.com/example/al2-mem-ir/internal/distro"
+	"github.com/example/kernledger/internal/distro"
 
 	// Order is irrelevant — init() registers each one. We import them
-	// here to populate the registry exactly the way cmd/al2-mem-ir does.
-	_ "github.com/example/al2-mem-ir/internal/distro/amazonlinux2"
-	_ "github.com/example/al2-mem-ir/internal/distro/amazonlinux2023"
-	_ "github.com/example/al2-mem-ir/internal/distro/ubuntu"
+	// here to populate the registry exactly the way cmd/kernledger does.
+	_ "github.com/example/kernledger/internal/distro/amazonlinux2"
+	_ "github.com/example/kernledger/internal/distro/amazonlinux2023"
+	_ "github.com/example/kernledger/internal/distro/ubuntu"
 )
 
 // TestDetect_AcrossAdapters is the load-bearing test for the plugin

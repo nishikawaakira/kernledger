@@ -1,12 +1,12 @@
 # Forensic considerations
 
 This document captures the design decisions and operational constraints
-that govern `al2-mem-ir`. Read it before using the tool in a real
+that govern `kernledger`. Read it before using the tool in a real
 engagement.
 
 ## 1. This tool is not stealth
 
-`al2-mem-ir` is an **orchestration** layer over LiME. It loads the LiME
+`kernledger` is an **orchestration** layer over LiME. It loads the LiME
 kernel module the same way an operator would by hand: `insmod
 /path/to/lime-<release>.ko path=... format=lime`. The module name is
 not changed. We do not unlink the `.ko` after loading, we do not strip
@@ -219,7 +219,7 @@ by `--include-ec2-metadata`.
 - With the flag, the lookup is routed through the active distro
   adapter's `CloudProviders()`. The shipped AL2 / AL2023 / Ubuntu
   adapters all expose an IMDSv2-only client (no IMDSv1 fallback).
-- Without the flag, `al2-mem-ir` makes no HTTP call to
+- Without the flag, `kernledger` makes no HTTP call to
   `169.254.169.254` and `manifest.cloud` is absent from the JSON.
   This is verified by `TestBuild_CloudOnlyFromIMDS`.
 

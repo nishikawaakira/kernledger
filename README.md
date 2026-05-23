@@ -1,6 +1,6 @@
-# al2-mem-ir
+# kernledger
 
-`al2-mem-ir` is a Go CLI that **orchestrates** memory acquisition and
+`kernledger` is a Go CLI that **orchestrates** memory acquisition and
 volatile-artifact collection on Amazon Linux 2 for incident response.
 
 It does **not** implement memory dumping itself — it drives the existing
@@ -49,7 +49,7 @@ referenced from a single JSON manifest.
 
 ## Safety model
 
-| Concern                              | How al2-mem-ir handles it                                                          |
+| Concern                              | How kernledger handles it                                                          |
 | ------------------------------------ | ---------------------------------------------------------------------------------- |
 | Kernel module load                   | Requires explicit `--execute`. Without it, `acquire` only records the plan.        |
 | Destructive operations               | None. The tool never removes data or modifies system state besides `insmod`.       |
@@ -66,24 +66,24 @@ referenced from a single JSON manifest.
 ```sh
 # Build for the target host (Amazon Linux 2 / amd64 by default).
 make build
-# → ./dist/al2-mem-ir-linux-amd64
+# → ./dist/kernledger-linux-amd64
 
 # On the target host:
-sudo ./al2-mem-ir inspect
+sudo ./kernledger inspect
 
 # Volatile collection. Encode the case id in the directory name —
 # that's the only operator-supplied case linkage.
-sudo ./al2-mem-ir collect --out /mnt/forensic/CASE-1234
+sudo ./kernledger collect --out /mnt/forensic/CASE-1234
 
 # Plan memory acquisition (no insmod yet):
-sudo ./al2-mem-ir acquire \
+sudo ./kernledger acquire \
   --out /mnt/forensic/CASE-1234 \
   --module /tmp/lime-$(uname -r).ko \
   --output memory.lime \
   --dry-run
 
 # Actually run insmod (requires --execute on top of everything above):
-sudo ./al2-mem-ir acquire \
+sudo ./kernledger acquire \
   --out /mnt/forensic/CASE-1234 \
   --module /tmp/lime-$(uname -r).ko \
   --output memory.lime \
@@ -91,7 +91,7 @@ sudo ./al2-mem-ir acquire \
   --execute
 
 # Bundle everything. The tarball name carries the case id forward.
-sudo ./al2-mem-ir package \
+sudo ./kernledger package \
   --in /mnt/forensic/CASE-1234 \
   --tarball /mnt/forensic/CASE-1234.tar.gz \
   --include-ec2-metadata
@@ -121,13 +121,13 @@ embedded in the tarball (see `docs/forensic-considerations.md` §
 On the **analyst** workstation (not the target):
 
 ```sh
-al2-mem-ir symbols \
+kernledger symbols \
   --dwarf2json /opt/dwarf2json/dwarf2json \
   --vmlinux ./vmlinux-5.10.220-209.869.amzn2.x86_64 \
   --kernel  5.10.220-209.869.amzn2.x86_64 \
   --out ./symbols/linux
 
-al2-mem-ir analyze \
+kernledger analyze \
   --vol /opt/volatility3/vol.py \
   --image  ./memory.lime \
   --symbols ./symbols \
@@ -163,7 +163,7 @@ exists solely so automation notices.
 ## Project layout
 
 ```
-cmd/al2-mem-ir/             # entrypoint; blank-imports distro adapters
+cmd/kernledger/             # entrypoint; blank-imports distro adapters
 internal/
   cli/                      # subcommands
   executor/                 # shell command abstraction (real + dry-run)
@@ -213,8 +213,8 @@ To add support for a new distro:
 
 1. Create `internal/distro/<name>/<name>.go`.
 2. Implement `Adapter`.
-3. Add `_ "github.com/example/al2-mem-ir/internal/distro/<name>"` to
-   `cmd/al2-mem-ir/main.go`.
+3. Add `_ "github.com/example/kernledger/internal/distro/<name>"` to
+   `cmd/kernledger/main.go`.
 
 No `if/switch` ladders anywhere in the CLI.
 

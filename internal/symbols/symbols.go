@@ -17,8 +17,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/example/al2-mem-ir/internal/audit"
-	"github.com/example/al2-mem-ir/internal/executor"
+	"github.com/example/kernledger/internal/audit"
+	"github.com/example/kernledger/internal/executor"
 )
 
 // Options for Generate.

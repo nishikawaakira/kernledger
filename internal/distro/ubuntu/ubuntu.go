@@ -1,6 +1,6 @@
 // Package ubuntu is the distro adapter for Ubuntu LTS releases on EC2.
 //
-// Activation: blank-imported from cmd/al2-mem-ir/main.go.
+// Activation: blank-imported from cmd/kernledger/main.go.
 //
 // Scope:
 //
@@ -53,8 +53,8 @@ package ubuntu
 import (
 	"context"
 
-	"github.com/example/al2-mem-ir/internal/distro"
-	"github.com/example/al2-mem-ir/internal/ec2"
+	"github.com/example/kernledger/internal/distro"
+	"github.com/example/kernledger/internal/ec2"
 )
 
 const adapterID = "ubuntu"

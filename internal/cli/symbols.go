@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/example/al2-mem-ir/internal/executor"
-	"github.com/example/al2-mem-ir/internal/symbols"
+	"github.com/example/kernledger/internal/executor"
+	"github.com/example/kernledger/internal/symbols"
 )
 
 type symbolsCmd struct {

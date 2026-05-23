@@ -33,7 +33,7 @@ func Run(ctx context.Context, version, commit string, args []string) int {
 		return 0
 	}
 	if args[0] == "--version" || args[0] == "-v" {
-		fmt.Printf("al2-mem-ir %s (%s)\n", version, commit)
+		fmt.Printf("kernledger %s (%s)\n", version, commit)
 		return 0
 	}
 
@@ -45,7 +45,7 @@ func Run(ctx context.Context, version, commit string, args []string) int {
 		return 2
 	}
 
-	fs := flag.NewFlagSet("al2-mem-ir "+name, flag.ContinueOnError)
+	fs := flag.NewFlagSet("kernledger "+name, flag.ContinueOnError)
 	fs.SetOutput(os.Stderr)
 	sub.SetFlags(fs)
 	if err := fs.Parse(args[1:]); err != nil {
@@ -74,9 +74,9 @@ func registerAll(version, commit string) map[string]Subcommand {
 }
 
 func printUsage(w io.Writer, cmds map[string]Subcommand) {
-	fmt.Fprintln(w, "al2-mem-ir — Amazon Linux 2 IR orchestration tool")
+	fmt.Fprintln(w, "kernledger — Amazon Linux 2 IR orchestration tool")
 	fmt.Fprintln(w)
-	fmt.Fprintln(w, "Usage: al2-mem-ir <subcommand> [flags] [args]")
+	fmt.Fprintln(w, "Usage: kernledger <subcommand> [flags] [args]")
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, "Subcommands:")
 	names := make([]string, 0, len(cmds))
@@ -88,5 +88,5 @@ func printUsage(w io.Writer, cmds map[string]Subcommand) {
 		fmt.Fprintf(w, "  %-10s  %s\n", n, cmds[n].Synopsis())
 	}
 	fmt.Fprintln(w)
-	fmt.Fprintln(w, "Run 'al2-mem-ir <subcommand> -h' for per-command flags.")
+	fmt.Fprintln(w, "Run 'kernledger <subcommand> -h' for per-command flags.")
 }

@@ -1,7 +1,7 @@
 // Package executor abstracts external command execution so collection
 // and acquisition logic can be unit-tested without invoking real binaries.
 //
-// All shell-touching code in al2-mem-ir MUST go through this interface.
+// All shell-touching code in kernledger MUST go through this interface.
 // That guarantees a single chokepoint for:
 //   - dry-run handling
 //   - audit logging

@@ -36,9 +36,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/example/al2-mem-ir/internal/audit"
-	"github.com/example/al2-mem-ir/internal/executor"
-	"github.com/example/al2-mem-ir/internal/manifest"
+	"github.com/example/kernledger/internal/audit"
+	"github.com/example/kernledger/internal/executor"
+	"github.com/example/kernledger/internal/manifest"
 )
 
 // DefaultPlugins is the MVP plugin list.
@@ -184,7 +184,7 @@ func Run(ctx context.Context, exec executor.Executor, log *audit.Logger, opts Op
 func writeReport(path string, a *manifest.Analysis) error {
 	ok, fail := a.Summary()
 	var b strings.Builder
-	b.WriteString("# al2-mem-ir analysis report\n\n")
+	b.WriteString("# kernledger analysis report\n\n")
 	fmt.Fprintf(&b, "- image: `%s`\n", a.ImagePath)
 	fmt.Fprintf(&b, "- symbols: `%s`\n", a.SymbolsPath)
 	fmt.Fprintf(&b, "- volatility: `%s`\n", a.Volatility)

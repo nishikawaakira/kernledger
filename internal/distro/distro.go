@@ -1,4 +1,4 @@
-// Package distro defines the abstraction that lets al2-mem-ir target
+// Package distro defines the abstraction that lets kernledger target
 // different Linux distributions without sprinkling `if/switch` blocks
 // throughout the codebase.
 //
@@ -8,7 +8,7 @@
 //   - The CLI looks up an Adapter at startup using Detect() OR an
 //     explicit --distro flag.
 //   - Adding a new distro = adding a new internal/distro/<name>/ package
-//     and blank-importing it from cmd/al2-mem-ir/main.go.
+//     and blank-importing it from cmd/kernledger/main.go.
 //
 // Concrete capability interfaces are intentionally small. A new distro
 // only has to implement the pieces it can meaningfully differentiate;
@@ -58,7 +58,7 @@ type ServiceQuery struct {
 }
 
 // LimeHints expose what the adapter knows about kernel-module loading.
-// This information is informational only; al2-mem-ir does NOT make
+// This information is informational only; kernledger does NOT make
 // security decisions based on it.
 type LimeHints struct {
 	KernelDevelPackage string // e.g. "kernel-devel-<release>"

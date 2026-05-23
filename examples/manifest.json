@@ -1,7 +1,7 @@
 {
   "schema_version": "3.0.0",
   "tool": {
-    "name": "al2-mem-ir",
+    "name": "kernledger",
     "version": "0.1.0",
     "commit": "abc1234",
     "distro_adapter": "amazonlinux2"
@@ -156,5 +156,5 @@
     }
   ],
   "created_at": "2026-05-16T01:32:00Z",
-  "_note": "manifest.json itself is intentionally omitted from the artifacts list — a file cannot record its own SHA-256. The tarball's overall SHA-256 is printed by 'al2-mem-ir package' and stored in audit.log."
+  "_note": "manifest.json itself is intentionally omitted from the artifacts list — a file cannot record its own SHA-256. The tarball's overall SHA-256 is printed by 'kernledger package' and stored in audit.log."
 }

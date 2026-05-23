@@ -1,4 +1,4 @@
-// Command al2-mem-ir is the orchestration CLI for Amazon Linux 2 IR.
+// Command kernledger is the orchestration CLI for Amazon Linux 2 IR.
 //
 // The binary itself does very little — it dispatches to subcommands
 // implemented under internal/cli/. Distro adapters self-register via
@@ -12,13 +12,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/example/al2-mem-ir/internal/cli"
+	"github.com/example/kernledger/internal/cli"
 
 	// Distro adapters. Order does not matter; each calls
 	// distro.Register from its init().
-	_ "github.com/example/al2-mem-ir/internal/distro/amazonlinux2"
-	_ "github.com/example/al2-mem-ir/internal/distro/amazonlinux2023"
-	_ "github.com/example/al2-mem-ir/internal/distro/ubuntu"
+	_ "github.com/example/kernledger/internal/distro/amazonlinux2"
+	_ "github.com/example/kernledger/internal/distro/amazonlinux2023"
+	_ "github.com/example/kernledger/internal/distro/ubuntu"
 )
 
 // Set via -ldflags at build time. See Makefile.

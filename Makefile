@@ -1,8 +1,10 @@
 SHELL := /bin/bash
 
-BINARY      := al2-mem-ir
-PKG         := github.com/example/al2-mem-ir
-CMD         := ./cmd/al2-mem-ir
+BINARY      := kernledger
+FIXTURE     := ir-lab-target
+PKG         := github.com/example/kernledger
+CMD         := ./cmd/kernledger
+FIXTURE_CMD := ./cmd/ir-lab-target
 VERSION     ?= $(shell git describe --tags --dirty --always 2>/dev/null || echo dev)
 COMMIT      ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo none)
 LDFLAGS     := -s -w -X main.version=$(VERSION) -X main.commit=$(COMMIT)
@@ -12,7 +14,7 @@ LDFLAGS     := -s -w -X main.version=$(VERSION) -X main.commit=$(COMMIT)
 GOOS   ?= linux
 GOARCH ?= amd64
 
-.PHONY: all build build-host test vet tidy fmt clean release
+.PHONY: all build build-host build-fixture build-fixture-host test vet tidy fmt clean release
 
 all: build
 
@@ -24,6 +26,15 @@ build:
 # Native build for local development / running unit tests.
 build-host:
 	go build -ldflags '$(LDFLAGS)' -o dist/$(BINARY) $(CMD)
+
+# Cross-compiled lab fixture for validating collection on a target host.
+build-fixture:
+	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) \
+		go build -trimpath -o dist/$(FIXTURE)-$(GOOS)-$(GOARCH) $(FIXTURE_CMD)
+
+# Native build of the lab fixture for local experiments.
+build-fixture-host:
+	go build -o dist/$(FIXTURE) $(FIXTURE_CMD)
 
 test:
 	go test ./...

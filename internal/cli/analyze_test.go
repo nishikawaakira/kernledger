@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/example/al2-mem-ir/internal/manifest"
+	"github.com/example/kernledger/internal/manifest"
 )
 
 func TestSaveAnalyzeManifest_WritesFile(t *testing.T) {
@@ -66,7 +66,7 @@ func TestSaveAnalyzeManifest_WritesFile(t *testing.T) {
 // us drive the real analyzeCmd.Run() — including its internal
 // executor.NewReal — without depending on Volatility being installed.
 const fakeVolScript = `#!/bin/sh
-# Last positional arg is the plugin name (al2-mem-ir always appends it).
+# Last positional arg is the plugin name (kernledger always appends it).
 plugin="${@: -1}"
 case "$plugin" in
   *envars*) echo "FAIL: $plugin" 1>&2; exit 1 ;;
