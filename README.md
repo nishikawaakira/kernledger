@@ -1,5 +1,9 @@
 # kernledger
 
+[![CI](https://github.com/nishikawaakira/kernledger/actions/workflows/ci.yml/badge.svg)](https://github.com/nishikawaakira/kernledger/actions/workflows/ci.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/nishikawaakira/kernledger.svg)](https://pkg.go.dev/github.com/nishikawaakira/kernledger)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+
 `kernledger` is a Go CLI that **orchestrates** memory acquisition and
 volatile-artifact collection on Amazon Linux 2 for incident response.
 
@@ -213,7 +217,7 @@ To add support for a new distro:
 
 1. Create `internal/distro/<name>/<name>.go`.
 2. Implement `Adapter`.
-3. Add `_ "github.com/example/kernledger/internal/distro/<name>"` to
+3. Add `_ "github.com/nishikawaakira/kernledger/internal/distro/<name>"` to
    `cmd/kernledger/main.go`.
 
 No `if/switch` ladders anywhere in the CLI.
@@ -258,8 +262,26 @@ their declarations rather than choosing the wrong abstraction.
   IR action itself, and a full Volatility 3 plugin run from a Mac.
   ~30 minutes, ~USD $0.10. Treats analyst-side setup as in scope.
 
+## Contributing
+
+Bug reports, distro adapters, and documentation fixes are welcome.
+Before opening a PR, read [`CONTRIBUTING.md`](CONTRIBUTING.md) — it
+covers what is in scope, what is intentionally not, and the local
+build / test workflow.
+
+Community participation is governed by the
+[Contributor Covenant v2.1](CODE_OF_CONDUCT.md).
+
+## Security
+
+Do **not** file public GitHub issues for security problems. See
+[`SECURITY.md`](SECURITY.md) for the private reporting channel and the
+classes of issues we treat as critical (anything that breaks the
+manifest hash chain, the `acquire --execute` gate, or the IMDS
+boundary).
+
 ## License
 
-Specify a license before publishing. This MVP repository intentionally
-omits a `LICENSE` file so the operator can pick (Apache-2.0 / MIT / etc.)
-in line with their organization's policy.
+Licensed under the [Apache License, Version 2.0](LICENSE).
+
+Copyright 2026 nishikawaakira.

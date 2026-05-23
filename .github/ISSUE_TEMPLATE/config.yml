@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/nishikawaakira/kernledger/security/advisories/new
+    about: Report security issues privately. See SECURITY.md.
+  - name: Operator question
+    url: https://github.com/nishikawaakira/kernledger/discussions
+    about: Ask about the IR workflow, LiME builds, or analyst-side setup.
