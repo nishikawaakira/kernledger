@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Contributor Covenant v2.1 CODE_OF_CONDUCT.md.
 - CONTRIBUTING.md, SECURITY.md, this CHANGELOG, plus GitHub Actions CI
   workflow and issue/PR templates.
+- Release workflow (`.github/workflows/release.yml`): tag pushes
+  matching `v*` build cross-platform tarballs for linux-amd64,
+  linux-arm64, darwin-amd64, darwin-arm64, generate a combined
+  SHA-256 `checksums.txt`, and create a GitHub Release with all
+  artifacts. Pure stdlib + gh CLI, no external release tool.
+- README install section covering both the release-tarball path (with
+  SHA-256 verification) and source build.
 
 ## [0.3.0] — pre-publication MVP
 

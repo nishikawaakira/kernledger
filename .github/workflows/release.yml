@@ -1,0 +1,98 @@
+name: Release
+
+# Triggered by pushing a tag like v0.1.0. Builds cross-platform
+# binaries, packages them into tarballs with LICENSE/README/CHANGELOG,
+# generates a single SHA-256 checksums file, and uploads everything to
+# the GitHub Release. Pure stdlib + gh CLI — no external release tool.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: linux-amd64,  goos: linux,  goarch: amd64 }
+          - { target: linux-arm64,  goos: linux,  goarch: arm64 }
+          - { target: darwin-amd64, goos: darwin, goarch: amd64 }
+          - { target: darwin-arm64, goos: darwin, goarch: arm64 }
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          check-latest: true
+
+      - name: Build and archive
+        env:
+          CGO_ENABLED: '0'
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          VERSION: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          short_sha="${SHA:0:7}"
+          ldflags="-s -w -X main.version=${VERSION} -X main.commit=${short_sha}"
+
+          stage="stage/kernledger-${VERSION}-${{ matrix.target }}"
+          mkdir -p "${stage}"
+
+          go build -trimpath -ldflags "${ldflags}" \
+            -o "${stage}/kernledger" ./cmd/kernledger
+          go build -trimpath -ldflags "${ldflags}" \
+            -o "${stage}/ir-lab-target" ./cmd/ir-lab-target
+
+          cp LICENSE README.md CHANGELOG.md "${stage}/"
+
+          archive="kernledger-${VERSION}-${{ matrix.target }}.tar.gz"
+          tar -C stage -czf "${archive}" "$(basename "${stage}")"
+          ls -la "${archive}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: archive-${{ matrix.target }}
+          path: kernledger-*.tar.gz
+          retention-days: 1
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: archive-*
+          merge-multiple: true
+
+      - name: Generate SHA-256 checksums
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum kernledger-*.tar.gz | tee checksums.txt
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          gh release create "${TAG}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "${TAG}" \
+            --generate-notes \
+            dist/kernledger-*.tar.gz \
+            dist/checksums.txt

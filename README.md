@@ -65,6 +65,39 @@ referenced from a single JSON manifest.
 | Environment variables in collection  | Off by default (`--include-env` to opt in; may contain secrets).                   |
 | EDR / GuardDuty visibility           | Surfaced in `inspect` as a warning; never circumvented.                            |
 
+## Install
+
+### From a release (recommended)
+
+Pre-built binaries for `linux-amd64`, `linux-arm64`, `darwin-amd64`, and
+`darwin-arm64` are attached to every [release](https://github.com/nishikawaakira/kernledger/releases).
+Always verify the SHA-256 before staging on a target host.
+
+```sh
+TAG=v0.1.0
+ARCH=linux-amd64    # or linux-arm64 / darwin-amd64 / darwin-arm64
+BASE="https://github.com/nishikawaakira/kernledger/releases/download/${TAG}"
+
+curl -fsSL -O "${BASE}/kernledger-${TAG}-${ARCH}.tar.gz"
+curl -fsSL -O "${BASE}/checksums.txt"
+sha256sum --ignore-missing -c checksums.txt        # macOS: shasum -a 256 -c
+
+tar -xzf "kernledger-${TAG}-${ARCH}.tar.gz"
+cd "kernledger-${TAG}-${ARCH}"
+./kernledger --version
+```
+
+### From source
+
+Requires Go 1.22+.
+
+```sh
+git clone https://github.com/nishikawaakira/kernledger.git
+cd kernledger
+make build          # cross-compile linux/amd64 → dist/kernledger-linux-amd64
+make build-host     # native build → dist/kernledger
+```
+
 ## Quick start
 
 ```sh
